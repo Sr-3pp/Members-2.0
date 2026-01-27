@@ -55,7 +55,7 @@ if (entityType.value === "member") {
   const { data } = await getEnterprise(id as string);
   entity.value = data.value;
 } else if (entityType.value === "program") {
-  const { getProgram } = usePrograms();
+  const { getProgram } = useProgram();
   const { data } = await getProgram(id as string);
   entity.value = data.value;
 }

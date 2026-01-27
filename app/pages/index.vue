@@ -58,6 +58,6 @@ const scrollToWizard = () => {
     </UContainer>
   </section>
   <section class="dark:bg-gray-600 bg-gray-100">
-    <MemberWizzard @scroll-wizzard="scrollToWizard" :categories="categories" />
+    <SearchWizzard @scroll-wizzard="scrollToWizard" :categories="categories" />
   </section>
 </template>

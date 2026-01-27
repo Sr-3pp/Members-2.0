@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Enterprise } from "~~/server/models/Enterprise";
 import type { Member } from "~~/server/models/Member";
+import type { Program } from "~~/server/models/Program";
 
 const { searchByCategory } = useMembers();
 const { getEnterprises } = useEnterprise();
+const { getPrograms } = useProgram();
 
 const { categories } = defineProps<{
   categories: Array<{ slug: string; name: string; image?: string }>;
@@ -24,8 +26,18 @@ const serachItems = [
 }));
 
 const searching = ref(false);
-const searchResults = ref<(Member | Enterprise)[]>([]);
-const currentCategory = ref<"enterprise" | "consultor" | "coach" | "capacitador" | "certificaciones-especiales" | null>(null);
+type ProgramWithEnterprise = Program & { enterprise?: Enterprise | null };
+
+const searchResults = ref<(Member | Enterprise | ProgramWithEnterprise)[]>([]);
+const currentCategory = ref<
+  | "enterprise"
+  | "consultor"
+  | "coach"
+  | "capacitador"
+  | "certificaciones-especiales"
+  | "program"
+  | null
+>(null);
 
 const searchFor = async (value: string) => {
   searching.value = true;
@@ -37,14 +49,16 @@ const searchFor = async (value: string) => {
   }
 
   if (value === "programs") {
-    currentCategory.value = null;
-    searchResults.value = [];
-    // Fetch programs logic here
-
-
+    currentCategory.value = "program";
+    const { data } = await getPrograms();
+    searchResults.value = data.value as ProgramWithEnterprise[];
     return;
   }
-  currentCategory.value = value as "consultor" | "coach" | "capacitador" | "certificaciones-especiales";
+  currentCategory.value = value as
+    | "consultor"
+    | "coach"
+    | "capacitador"
+    | "certificaciones-especiales";
   searchResults.value = await searchByCategory(value);
 };
 </script>
@@ -65,11 +79,24 @@ const searchFor = async (value: string) => {
           v-if="searchResults.length"
           class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <li v-for="instance in searchResults" :key="`member-${instance._id}`">
-            <SearchCard 
-              :category="currentCategory || 'enterprise'" 
-              :member="currentCategory !== 'enterprise' ? (instance as Member) : undefined" 
-              :enterprise="currentCategory === 'enterprise' ? (instance as Enterprise) : undefined" 
+          <li v-for="instance in searchResults" :key="`search-result-${instance._id}`">
+            <SearchCard
+              :category="currentCategory || 'enterprise'"
+              :member="
+                currentCategory !== 'enterprise' && currentCategory !== 'program'
+                  ? (instance as Member)
+                  : undefined
+              "
+              :enterprise="
+                currentCategory === 'enterprise'
+                  ? (instance as Enterprise)
+                  : undefined
+              "
+              :program="
+                currentCategory === 'program'
+                  ? (instance as ProgramWithEnterprise)
+                  : undefined
+              "
             />
           </li>
         </ul>

@@ -3,7 +3,12 @@ import ProgramModel, { Program } from "../models/Program";
 
 export async function findProgram() {
   await connectDb();
-  return ProgramModel.find().lean();
+  return ProgramModel.find()
+    .populate({
+      path: "enterprise",
+      select: "name phone country city social picture folio",
+    })
+    .lean();
 }
 
 export async function findProgramById(id: string) {

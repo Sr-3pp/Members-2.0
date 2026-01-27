@@ -1,39 +1,88 @@
 <script setup lang="ts">
 import type { Member } from "~~/server/models/Member";
 import type { Enterprise } from "~~/server/models/Enterprise";
+import type { Program } from "~~/server/models/Program";
 
 const bgByCategory: {
   consultor: string;
   coach: string;
   capacitador: string;
   "certificaciones-especiales": string;
+  program: string;
   enterprise: string;
 } = {
   consultor: "bg-consultor",
   coach: "bg-coach",
   capacitador: "bg-capacitador",
   "certificaciones-especiales": "bg-certificaciones-especiales",
+  program: "bg-program",
   enterprise: "bg-enterprise",
 };
 
-const {member, enterprise} = defineProps<{
+const { member, enterprise, program } = defineProps<{
   category: keyof typeof bgByCategory;
   member?: Member;
   enterprise?: Enterprise;
+  program?: (Program & { enterprise?: Enterprise | null }) | null;
 }>();
 
-const instance = computed<Member | Enterprise | null>(() => member ?? enterprise ?? null);
-const isMember = computed(() => !!member);
-const displayLastName = computed(() =>
-  isMember.value ? member?.last_name ?? "" : "",
+type ProgramWithEnterprise = Program & { enterprise?: Enterprise | null };
+const instance = computed<Member | Enterprise | ProgramWithEnterprise | null>(
+  () => member ?? enterprise ?? (program as ProgramWithEnterprise | null) ?? null,
 );
+const isMember = computed(() => !!member);
+const isProgram = computed(() => !!program);
+const displayLastName = computed(() => (isMember.value ? member?.last_name ?? "" : ""));
+const programEnterprise = computed<Enterprise | null>(() =>
+  isProgram.value ? ((program as ProgramWithEnterprise | undefined)?.enterprise ?? null) : null,
+);
+const displayName = computed(() => {
+  if (isProgram.value) return program?.title ?? "";
+  const base = instance.value as Member | Enterprise | null;
+  const last = isMember.value ? displayLastName.value : "";
+  return `${base?.name ?? ""} ${last}`.trim();
+});
+const displayPicture = computed(() => {
+  if (isProgram.value) return program?.photo ?? programEnterprise.value?.picture ?? "";
+  const base = instance.value as Member | Enterprise | null;
+  return (base?.picture as string) ?? "";
+});
+const displayFlag = computed(() => {
+  if (isProgram.value) return programEnterprise.value?.country?.flag ?? "";
+  const base = instance.value as Member | Enterprise | null;
+  return base?.country?.flag ?? "";
+});
+type ContactSource =
+  | (Member & { social?: Member["social"] })
+  | (Enterprise & { social?: Enterprise["social"] })
+  | (ProgramWithEnterprise & { social?: any; folio?: string; phone?: string; country?: any })
+  | null;
+
+const contactSource = computed<ContactSource>(() => {
+  if (isProgram.value) {
+    const programContact = (program as ProgramWithEnterprise | null) as ContactSource;
+    const hasProgramContact = Boolean(
+      (programContact as any)?.folio ||
+        (programContact as any)?.phone ||
+        (programContact as any)?.country ||
+        (programContact as any)?.social,
+    );
+    return hasProgramContact ? programContact : programEnterprise.value;
+  }
+  return instance.value as ContactSource;
+});
 const detailPath = computed(() => {
+  if (isProgram.value && program) {
+    const baseTitle = (program.title ?? "").toLowerCase().replace(/ /g, "_");
+    return `/program/${program._id}/${baseTitle}`;
+  }
   if (!instance.value) return "#";
-  const baseName = (instance.value.name ?? "").toLowerCase().replace(/ /g, "_");
+  const base = instance.value as Member | Enterprise;
+  const baseName = (base.name ?? "").toLowerCase().replace(/ /g, "_");
   const lastSlug = displayLastName.value
     ? `_${displayLastName.value.toLowerCase().replace(/ /g, "_")}`
     : "";
-  return `/${member ? 'member/' : 'enterprise/'}${instance.value._id}/${baseName}${lastSlug}`;
+  return `/${member ? "member/" : "enterprise/"}${base._id}/${baseName}${lastSlug}`;
 });
 </script>
 
@@ -59,25 +108,25 @@ const detailPath = computed(() => {
       <figure class="relative flex flex-col items-center w-2/8 -mt-16">
         <NuxtImg
           class="p-2 bg-white rounded-full"
-          :src="instance?.picture as string"
-          :alt="`picture of ${instance?.name || ''} ${displayLastName}`"
+          :src="displayPicture"
+          :alt="`picture of ${displayName}`"
         />
         <span
           class="p-1 border-1 border-black rounded-full flex-shring-0 -mt-6 overflow-hidden"
         >
           <NuxtImg
             class="size-8 object-cover rounded-full"
-            :src="instance?.country?.flag || ''"
+            :src="displayFlag || ''"
           />
         </span>
       </figure>
 
       <div class="flex flex-col gap-2 ml-auto text-right">
         <h3 class="font-bold text-lg">
-          {{ instance?.name }} {{ displayLastName }}
+          {{ displayName }}
         </h3>
         <ul class="flex justify-end gap-2">
-          <template v-for="(social, key) in instance?.social">
+          <template v-for="(social, key) in contactSource?.social">
             <li
               class=""
               :key="`instance.card-social-${social}`"
@@ -94,7 +143,7 @@ const detailPath = computed(() => {
       <p class="text-black flex justify-between">
         <span> Folio: </span>
         <span>
-          {{ instance?.folio }}
+          {{ contactSource?.folio }}
         </span>
       </p>
       <hr />
@@ -116,11 +165,11 @@ const detailPath = computed(() => {
       </template>
       <p
         class="text-black flex justify-between"
-        v-if="instance?.social?.website"
+        v-if="contactSource?.social?.website"
       >
         <span> Website: </span>
         <span>
-          {{ instance?.social?.website }}
+          {{ contactSource?.social?.website }}
         </span>
       </p>
       <hr />
