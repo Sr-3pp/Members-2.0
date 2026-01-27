@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  --color-capacitador: #92c860;
+  --color-certificaciones-especiales: #505050;
+  --color-coach: #f5821d;
+  --color-consultor: #01b1af;
+  --color-enterprise: #30bdff;
+}

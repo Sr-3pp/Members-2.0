@@ -1,0 +1,6 @@
+[
+  { "name": "Afiliado", "slug": "afiliado" },
+  { "name": "Especialista", "slug": "especialista" },
+  { "name": "Experto", "slug": "experto" },
+  { "name": "Profesional", "slug": "profesional" }
+]
