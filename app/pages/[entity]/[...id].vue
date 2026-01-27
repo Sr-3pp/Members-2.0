@@ -4,11 +4,11 @@ import type { Member } from "~~/server/models/Member";
 import type { Enterprise } from "~~/server/models/Enterprise";
 import type { Program } from "~~/server/models/Program";
 
-const { id: member_params, member: member_param } = useRoute().params;
-const [id] = member_params as string[];
+const { id: entity_params, entity: entity_param } = useRoute().params;
+const [id] = entity_params as string[];
 
 const entity = ref<Member | Enterprise | Program | null>(null);
-const entityType = computed(() => member_param as string);
+const entityType = computed(() => entity_param as string);
 const isMember = computed(() => entityType.value === "member");
 const isEnterprise = computed(() => entityType.value === "enterprise");
 const isProgram = computed(() => entityType.value === "program");
