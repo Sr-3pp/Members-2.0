@@ -3,13 +3,21 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      title: "Members Directory",
+      htmlAttrs: {
+        lang: "en",
+      },
+    },
+  },
+
   runtimeConfig: {
     mongodbUri: process.env.MONGODB_URI || "",
   },
 
   modules: [
     "@nuxt/a11y",
-    "@nuxt/content",
     "@nuxt/eslint",
     "@nuxt/hints",
     "@nuxt/image",

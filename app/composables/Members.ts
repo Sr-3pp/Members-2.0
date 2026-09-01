@@ -1,3 +1,11 @@
+import type { Member } from "~~/server/models/Member";
+
+export interface SearchMemberFilters {
+  name: string;
+  category?: string;
+  country?: string;
+}
+
 export const useMembers = () => {
   const getMembers = () =>
     useAsyncData("members", async () => $fetch("/api/members"));
@@ -16,10 +24,20 @@ export const useMembers = () => {
   const searchByCategory = (category: string) =>
     $fetch(`/api/members/search/${category}`);
 
+  const searchMember = (filters: SearchMemberFilters) =>
+    $fetch<Member[]>("/api/members/search", {
+      query: {
+        name: filters.name || undefined,
+        category: filters.category,
+        country: filters.country,
+      },
+    });
+
   return {
     getMember,
     getMembers,
     deleteMember,
     searchByCategory,
+    searchMember,
   };
 };

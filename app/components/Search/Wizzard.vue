@@ -116,7 +116,8 @@ const searchFor = async (value: string) => {
             class="transition-width duration-300"
             :class="searching ? 'w-1/2 m-auto' : 'w-full'"
             :src="item.img"
-            :alt="item.label"
+            alt=""
+            aria-hidden="true"
           />
           <span>{{ item.label }}</span>
         </button>

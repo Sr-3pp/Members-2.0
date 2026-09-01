@@ -7,8 +7,9 @@ import {
   getMembersByCategory,
   searchMembers as repoSearchMembers,
 } from "../repositories/member.repo";
+import type { MemberSearchFilters } from "../repositories/member.repo";
 
-import { Member } from "../models/Member";
+import type { Member } from "../models/Member";
 
 export async function listMembers() {
   return await findMember();
@@ -51,6 +52,12 @@ export async function searchMembersByCategory(category: string) {
   return await getMembersByCategory(category);
 }
 
-export async function searchMembers(query: string, status?: string, limit = 20) {
-  return await repoSearchMembers(query, status, limit);
+export async function searchMembers(filters: MemberSearchFilters) {
+  return await repoSearchMembers({
+    ...filters,
+    query: filters.query?.trim(),
+    country: filters.country?.trim().toUpperCase(),
+    category: filters.category?.trim(),
+    limit: Math.min(Math.max(filters.limit ?? 20, 1), 100),
+  });
 }

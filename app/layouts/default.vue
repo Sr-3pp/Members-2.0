@@ -2,7 +2,9 @@
   <UApp>
     <NuxtRouteAnnouncer />
     <Navbar />
-    <NuxtPage />
+    <main id="main-content">
+      <NuxtPage />
+    </main>
     <Footer />
   </UApp>
 </template>

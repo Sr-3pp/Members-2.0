@@ -1,22 +1,42 @@
 import { connectDb } from "../db/mongoose";
-import MemberModel, { Member } from "../models/Member";
+import MemberModel, { type Member } from "../models/Member";
+
+export interface MemberSearchFilters {
+  query?: string;
+  country?: string;
+  category?: string;
+  status?: string;
+  limit?: number;
+}
 
 export async function findMember() {
   await connectDb();
   return MemberModel.find().lean();
 }
 
-export async function searchMembers(query: string, status?: string, limit = 20) {
+export async function searchMembers({
+  query,
+  country,
+  category,
+  status,
+  limit = 20,
+}: MemberSearchFilters) {
   await connectDb();
-  const filter: any = {};
+  const filter: Record<string, unknown> = {};
+
   if (status) filter.status = status;
+  if (country) filter["country.code"] = country;
+  if (category) filter.categories = category;
+
   if (query) {
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     filter.$or = [
-      { name: { $regex: query, $options: "i" } },
-      { last_name: { $regex: query, $options: "i" } },
-      { email: { $regex: query, $options: "i" } },
+      { name: { $regex: escapedQuery, $options: "i" } },
+      { last_name: { $regex: escapedQuery, $options: "i" } },
+      { folio: { $regex: escapedQuery, $options: "i" } },
     ];
   }
+
   return MemberModel.find(filter).limit(limit).lean();
 }
 

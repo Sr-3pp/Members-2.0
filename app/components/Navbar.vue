@@ -1,7 +1,11 @@
 <script setup lang="ts">
-const { data: navigation } = await useAsyncData("navigation", () =>
-  queryCollectionNavigation("content"),
-);
+const navigation = [
+  { title: "Home", path: "/" },
+  { title: "Members", path: "/members" },
+  { title: "Add Member", path: "/members/add", isAuth: true },
+  { title: "Login", path: "/login" },
+  { title: "Register", path: "/register" },
+];
 
 const { isLoggedIn } = useAuth();
 </script>
