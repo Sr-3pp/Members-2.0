@@ -1,14 +1,8 @@
 import { removeEnterprise } from "~~/server/services/enterprise.service";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
-
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Enterprise ID is required",
-    });
-  }
-
-  return await removeEnterprise(id);
+  return await removeEnterprise(
+    requireRouterParam(event, "id", "Enterprise ID"),
+  );
 });

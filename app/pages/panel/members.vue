@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Member } from "~~/server/models/Member";
+import type { Member } from "~~/shared/types/entities";
 
 const { getMembers, deleteMember } = useMembers();
 const toast = useToast();

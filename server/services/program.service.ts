@@ -5,47 +5,28 @@ import {
   deleteProgram,
   updateProgram,
 } from "../repositories/program.repo";
-
-import { Program } from "../models/Program";
+import type {
+  CreateProgramInput,
+  UpdateProgramInput,
+} from "~~/shared/types/entities";
+import { requireEntity } from "../utils/service";
 
 export async function listPrograms() {
   return await findProgram();
 }
 
 export async function getProgram(id: string) {
-  const program = await findProgramById(id);
-  if (!program) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Program not found",
-    });
-  }
-  return program;
+  return requireEntity(await findProgramById(id), "Program");
 }
 
-export async function registerProgram(input: Program) {
+export async function registerProgram(input: CreateProgramInput) {
   return await createProgram(input);
 }
 
 export async function removeProgram(id: string) {
-  const program = await findProgramById(id);
-  if (!program) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Program not found",
-    });
-  }
-
-  return await deleteProgram(id);
+  return requireEntity(await deleteProgram(id), "Program");
 }
 
-export async function patchProgram(id: string, input: Program) {
-  const program = await findProgramById(id);
-  if (!program) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Program not found",
-    });
-  }
-  return await updateProgram(id, input);
+export async function patchProgram(id: string, input: UpdateProgramInput) {
+  return requireEntity(await updateProgram(id, input), "Program");
 }

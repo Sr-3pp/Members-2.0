@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Program } from "~~/server/models/Program";
+import type { Program } from "~~/shared/types/entities";
 
 const { getPrograms, deleteProgram } = useProgram();
 const toast = useToast();

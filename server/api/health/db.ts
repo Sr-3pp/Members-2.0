@@ -12,11 +12,11 @@ export default defineEventHandler(async () => {
       readyState: conn.connection.readyState, // 1 = connected
       time: new Date().toISOString(),
     };
-  } catch (err: any) {
+  } catch (error: unknown) {
     return {
       status: "error",
       database: "disconnected",
-      error: err?.message || "Unknown error",
+      error: error instanceof Error ? error.message : "Unknown error",
       time: new Date().toISOString(),
     };
   }

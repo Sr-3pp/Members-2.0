@@ -18,7 +18,11 @@ export async function connectDb() {
         maxPoolSize: 5,
         serverSelectionTimeoutMS: 5000,
       })
-      .then((m) => m);
+      .then((instance) => instance)
+      .catch((error) => {
+        cache.promise = null;
+        throw error;
+      });
   }
 
   cache.conn = await cache.promise;

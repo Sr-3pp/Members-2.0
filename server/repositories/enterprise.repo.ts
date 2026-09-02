@@ -1,5 +1,10 @@
 import { connectDb } from "../db/mongoose";
-import EnterpriseModel, { Enterprise } from "../models/Enterprise";
+import EnterpriseModel from "../models/Enterprise";
+import { escapeRegex, type SearchFilters } from "../utils/search";
+import type {
+  CreateEnterpriseInput,
+  UpdateEnterpriseInput,
+} from "~~/shared/types/entities";
 
 export async function findEnterprise() {
   await connectDb();
@@ -11,7 +16,7 @@ export async function findEnterpriseById(id: string) {
   return EnterpriseModel.findById(id).lean();
 }
 
-export async function createEnterprise(data: Enterprise) {
+export async function createEnterprise(data: CreateEnterpriseInput) {
   await connectDb();
   const doc = await EnterpriseModel.create(data);
   return doc.toObject();
@@ -22,20 +27,30 @@ export async function deleteEnterprise(id: string) {
   return EnterpriseModel.findByIdAndDelete(id).lean();
 }
 
-export async function updateEnterprise(id: string, data: Enterprise) {
+export async function updateEnterprise(id: string, data: UpdateEnterpriseInput) {
   await connectDb();
   return EnterpriseModel.findByIdAndUpdate(id, data, { new: true }).lean();
 }
 
-export async function searchEnterprises(query: string, status?: string, limit = 20) {
+export async function searchEnterprises({
+  query,
+  country,
+  status,
+  limit = 20,
+}: SearchFilters) {
   await connectDb();
-  const filter: any = {};
+  const filter: Record<string, unknown> = {};
+
   if (status) filter.status = status;
+  if (country) filter["country.code"] = country;
+
   if (query) {
+    const escapedQuery = escapeRegex(query);
     filter.$or = [
-      { name: { $regex: query, $options: "i" } },
-      { folio: { $regex: query, $options: "i" } },
+      { name: { $regex: escapedQuery, $options: "i" } },
+      { folio: { $regex: escapedQuery, $options: "i" } },
     ];
   }
+
   return EnterpriseModel.find(filter).limit(limit).lean();
 }

@@ -5,7 +5,7 @@ import countries from "~~/data/countries.json";
 import categories from "~~/data/categories.json";
 import ranges from "~~/data/ranges.json";
 import { compressImageUnder1MB } from "~~/utils/image";
-import type { Member } from "~~/server/models/Member";
+import type { Member } from "~~/shared/types/entities";
 
 const props = defineProps<{
   initial?: Member;

@@ -1,6 +1,10 @@
+import type { Enterprise } from "~~/shared/types/entities";
+
 export const useEnterprise = () => {
   const getEnterprises = () =>
-    useAsyncData("enterprises", async () => $fetch("/api/enterprises"));
+    useAsyncData("enterprises", () =>
+      $fetch<Enterprise[]>("/api/enterprises"),
+    );
 
   const deleteEnterprise = (id: string) =>
     $fetch(`/api/enterprises/${id}`, {
@@ -8,9 +12,8 @@ export const useEnterprise = () => {
     });
 
   const getEnterprise = (id: string) =>
-    useAsyncData(
-      `enterprise-${id}`,
-      async () => await $fetch(`/api/enterprises/${id}`),
+    useAsyncData(`enterprise-${id}`, () =>
+      $fetch<Enterprise>(`/api/enterprises/${id}`),
     );
 
   return {

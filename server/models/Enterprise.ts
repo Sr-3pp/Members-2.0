@@ -1,4 +1,5 @@
-import mongoose, { InferSchemaType, Schema } from "mongoose";
+import mongoose, { Schema, type Model } from "mongoose";
+import type { Enterprise } from "~~/shared/types/entities";
 
 const EnterpriseSchema = new Schema(
   {
@@ -47,9 +48,5 @@ const EnterpriseSchema = new Schema(
   { timestamps: true },
 );
 
-export type Enterprise = InferSchemaType<typeof EnterpriseSchema> & {
-  _id: string;
-};
-
-export default mongoose.models.Enterprise ||
-  mongoose.model("Enterprise", EnterpriseSchema);
+export default (mongoose.models.Enterprise as Model<Enterprise> | undefined) ||
+  mongoose.model<Enterprise>("Enterprise", EnterpriseSchema);

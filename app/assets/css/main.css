@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+.dark{
+  --ui-bg: #1F313A; 
+  --ui-bg-accented: #2E4F62;
+}
+
 @theme {
   --color-capacitador: #92c860;
   --color-certificaciones-especiales: #505050;

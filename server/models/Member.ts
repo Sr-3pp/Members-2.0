@@ -1,4 +1,5 @@
-import mongoose, { InferSchemaType, Schema } from "mongoose";
+import mongoose, { Schema, type Model } from "mongoose";
+import type { Member } from "~~/shared/types/entities";
 
 const MemberSchema = new Schema(
   {
@@ -59,8 +60,5 @@ const MemberSchema = new Schema(
   { timestamps: true },
 );
 
-export type Member = InferSchemaType<typeof MemberSchema> & {
-  _id: string;
-};
-
-export default mongoose.models.Member || mongoose.model("Member", MemberSchema);
+export default (mongoose.models.Member as Model<Member> | undefined) ||
+  mongoose.model<Member>("Member", MemberSchema);

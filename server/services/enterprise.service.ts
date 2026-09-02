@@ -6,51 +6,33 @@ import {
   updateEnterprise,
   searchEnterprises as repoSearchEnterprises,
 } from "../repositories/enterprise.repo";
-
-import { Enterprise } from "../models/Enterprise";
+import type {
+  CreateEnterpriseInput,
+  UpdateEnterpriseInput,
+} from "~~/shared/types/entities";
+import { normalizeSearchFilters, type SearchFilters } from "../utils/search";
+import { requireEntity } from "../utils/service";
 
 export async function listEnterprises() {
   return await findEnterprise();
 }
 
 export async function getEnterprise(id: string) {
-  const enterprise = await findEnterpriseById(id);
-  if (!enterprise) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Enterprise not found",
-    });
-  }
-  return enterprise;
+  return requireEntity(await findEnterpriseById(id), "Enterprise");
 }
 
-export async function registerEnterprise(input: Enterprise) {
+export async function registerEnterprise(input: CreateEnterpriseInput) {
   return await createEnterprise(input);
 }
 
 export async function removeEnterprise(id: string) {
-  const enterprise = await findEnterpriseById(id);
-  if (!enterprise) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Enterprise not found",
-    });
-  }
-
-  return await deleteEnterprise(id);
+  return requireEntity(await deleteEnterprise(id), "Enterprise");
 }
 
-export async function patchEnterprise(id: string, input: Enterprise) {
-  const enterprise = await findEnterpriseById(id);
-  if (!enterprise) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: "Enterprise not found",
-    });
-  }
-  return await updateEnterprise(id, input);
+export async function patchEnterprise(id: string, input: UpdateEnterpriseInput) {
+  return requireEntity(await updateEnterprise(id, input), "Enterprise");
 }
 
-export async function searchEnterprises(query: string, status?: string, limit = 20) {
-  return await repoSearchEnterprises(query, status, limit);
+export async function searchEnterprises(filters: SearchFilters) {
+  return await repoSearchEnterprises(normalizeSearchFilters(filters));
 }

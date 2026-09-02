@@ -1,7 +1,6 @@
 import { getEnterprise } from "~~/server/services/enterprise.service";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id") as string;
-  console.log("Fetching enterprise with ID:", id);
-  return await getEnterprise(id);
+  return await getEnterprise(requireRouterParam(event, "id", "Enterprise ID"));
 });

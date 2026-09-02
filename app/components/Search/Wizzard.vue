@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import type { Enterprise } from "~~/server/models/Enterprise";
-import type { Member } from "~~/server/models/Member";
-import type { Program } from "~~/server/models/Program";
+import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 const { searchByCategory } = useMembers();
 const { getEnterprises } = useEnterprise();
 const { getPrograms } = useProgram();
 
-const { categories } = defineProps<{
+const props = withDefaults(defineProps<{
   categories: Array<{ slug: string; name: string; image?: string }>;
+  members?: Member[];
+  memberCategory?: string;
+}>(), {
+  members: () => [],
+  memberCategory: undefined,
+});
+
+const emit = defineEmits<{
+  "scroll-wizzard": [];
 }>();
 
-const serachItems = [
-  ...categories,
+const searchItems = [
+  ...props.categories,
   {
     slug: "enterprise",
     name: "Enterprises",
@@ -61,17 +68,34 @@ const searchFor = async (value: string) => {
     | "certificaciones-especiales";
   searchResults.value = await searchByCategory(value);
 };
+
+const stopSearching = (): void => {
+  searching.value = false;
+};
+
+watch(
+  () => [props.members, props.memberCategory] as const,
+  ([newMembers, memberCategory]) => {
+    searchResults.value = newMembers;
+    currentCategory.value = (memberCategory || "consultor") as
+      | "consultor"
+      | "coach"
+      | "capacitador"
+      | "certificaciones-especiales";
+    searching.value = true;
+  },
+);
 </script>
 
 <template>
-  <UContainer class="py-6">
-    <Transition name="fade-height" @after-enter="$emit('scroll-wizzard')">
-      <div class="h-[60dvh] flex flex-col gap-6" v-if="searching">
+  <UContainer>
+    <Transition name="fade-height" @after-enter="emit('scroll-wizzard')">
+      <div v-if="searching" class="min-h-[60dvh] flex flex-col gap-6">
         <UButton
-          @click="searching = false"
           color="neutral"
           variant="outline"
           class="ml-auto"
+          @click="stopSearching"
         >
           Regresar
         </UButton>
@@ -79,7 +103,10 @@ const searchFor = async (value: string) => {
           v-if="searchResults.length"
           class="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <li v-for="instance in searchResults" :key="`search-result-${instance._id}`">
+          <li
+            v-for="instance in searchResults"
+            :key="`search-result-${instance._id}`"
+          >
             <SearchCard
               :category="currentCategory || 'enterprise'"
               :member="
@@ -100,14 +127,14 @@ const searchFor = async (value: string) => {
             />
           </li>
         </ul>
-        <div class="flex flex-col items-center justify-center h-full" v-else>
+        <div v-else class="flex flex-col items-center justify-center h-full">
           <UIcon name="tabler-error-404-off" class="size-40" />
           <p class="text-4xl font-bold">No Members found</p>
         </div>
       </div>
     </Transition>
     <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-      <li v-for="item in serachItems" :key="`search-item-${item.value}`">
+      <li v-for="item in searchItems" :key="`search-item-${item.value}`">
         <button
           class="flex flex-col gap-4 items-center"
           @click="searchFor(item.value)"
@@ -119,7 +146,7 @@ const searchFor = async (value: string) => {
             alt=""
             aria-hidden="true"
           />
-          <span>{{ item.label }}</span>
+          <span class="text-inverted">{{ item.label }}</span>
         </button>
       </li>
     </ul>

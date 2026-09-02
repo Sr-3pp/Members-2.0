@@ -3,7 +3,7 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 import * as v from "valibot";
 import countries from "~~/data/countries.json";
 import categories from "~~/data/categories.json";
-import type { Member } from "~~/server/models/Member";
+import type { Member } from "~~/shared/types/entities";
 
 const { searchMember } = useMembers();
 
@@ -79,7 +79,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         aria-label="Country"
         :items="countryItems"
         value-key="value"
-        :ui="{ placeholder: 'text-gray-700 dark:text-gray-200' }"
+        :ui="{ placeholder: 'text-gray-200' }"
       />
     </UFormField>
     <UFormField name="category">
@@ -89,7 +89,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         placeholder="Select Category"
         :items="categoryItems"
         aria-label="Select Category"
-        :ui="{ placeholder: 'text-gray-700 dark:text-gray-200' }"
+        :ui="{ placeholder: 'text-gray-200' }"
       />
     </UFormField>
     <div class="flex justify-center items-end">
@@ -97,7 +97,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         color="neutral"
         type="submit"
         :loading="searching"
-        class="bg-gray-900 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-white"
+        class="bg-gray-100 text-gray-950 hover:bg-white"
       >
         Search
       </UButton>

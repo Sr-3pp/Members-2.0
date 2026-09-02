@@ -2,7 +2,7 @@
 import { z } from "zod";
 import countries from "~~/data/countries.json";
 import { compressImageUnder1MB } from "~~/utils/image";
-import type { Enterprise } from "~~/server/models/Enterprise";
+import type { Enterprise } from "~~/shared/types/entities";
 
 const props = defineProps<{
   initial?: Enterprise;

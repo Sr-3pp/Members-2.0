@@ -1,4 +1,4 @@
-import type { Member } from "~~/server/models/Member";
+import type { Member } from "~~/shared/types/entities";
 
 export interface SearchMemberFilters {
   name: string;
@@ -8,7 +8,7 @@ export interface SearchMemberFilters {
 
 export const useMembers = () => {
   const getMembers = () =>
-    useAsyncData("members", async () => $fetch("/api/members"));
+    useAsyncData("members", () => $fetch<Member[]>("/api/members"));
 
   const deleteMember = (id: string) =>
     $fetch(`/api/members/${id}`, {
@@ -16,13 +16,12 @@ export const useMembers = () => {
     });
 
   const getMember = (id: string) =>
-    useAsyncData(`member-${id}`, async () => {
-      const member = await $fetch(`/api/members/${id}`);
-      return member;
-    });
+    useAsyncData(`member-${id}`, () =>
+      $fetch<Member>(`/api/members/${id}`),
+    );
 
   const searchByCategory = (category: string) =>
-    $fetch(`/api/members/search/${category}`);
+    $fetch<Member[]>(`/api/members/search/${category}`);
 
   const searchMember = (filters: SearchMemberFilters) =>
     $fetch<Member[]>("/api/members/search", {

@@ -1,6 +1,8 @@
+import type { Program } from "~~/shared/types/entities";
+
 export const useProgram = () => {
   const getPrograms = () =>
-    useAsyncData("programs", async () => $fetch("/api/programs"));
+    useAsyncData("programs", () => $fetch<Program[]>("/api/programs"));
 
   const deleteProgram = (id: string) =>
     $fetch(`/api/programs/${id}`, {
@@ -8,9 +10,8 @@ export const useProgram = () => {
     });
 
   const getProgram = (id: string) =>
-    useAsyncData(
-      `program-${id}`,
-      async () => await $fetch(`/api/programs/${id}`),
+    useAsyncData(`program-${id}`, () =>
+      $fetch<Program>(`/api/programs/${id}`),
     );
 
   return {

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { Member } from "~~/server/models/Member";
-import type { Enterprise } from "~~/server/models/Enterprise";
-import type { Program } from "~~/server/models/Program";
+import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 const { id: entity_params, entity: entity_param } = useRoute().params;
 const [id] = entity_params as string[];
@@ -49,15 +47,15 @@ const skills = computed(() => {
 if (entityType.value === "member") {
   const { getMember } = useMembers();
   const { data } = await getMember(id as string);
-  entity.value = data.value;
+  entity.value = data.value ?? null;
 } else if (entityType.value === "enterprise") {
   const { getEnterprise } = useEnterprise();
   const { data } = await getEnterprise(id as string);
-  entity.value = data.value;
+  entity.value = data.value ?? null;
 } else if (entityType.value === "program") {
   const { getProgram } = useProgram();
   const { data } = await getProgram(id as string);
-  entity.value = data.value;
+  entity.value = data.value ?? null;
 }
 
 const displayImage = computed(() => {
@@ -320,7 +318,7 @@ const displayName = computed(() => {
     </div>
   </UContainer>
 
-  <section v-if="entity && isProgram" class="dark:bg-gray-700 py-6">
+  <section v-if="entity && isProgram" class="bg-gray-700 py-6">
     <UContainer>
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-bold">Participants</h3>
@@ -342,7 +340,7 @@ const displayName = computed(() => {
     </UContainer>
   </section>
 
-  <section v-if="entity && (isMember || isProgram || isEnterprise)" class="dark:bg-gray-600">
+  <section v-if="entity && (isMember || isProgram || isEnterprise)" class="bg-gray-600">
     <UContainer
       class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-6 gap-4 py-6"
     >

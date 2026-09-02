@@ -1,4 +1,6 @@
 <script setup lang="ts">
+defineOptions({ name: "AppNavbar" });
+
 const navigation = [
   { title: "Home", path: "/" },
   { title: "Members", path: "/members" },
@@ -11,10 +13,18 @@ const { isLoggedIn } = useAuth();
 </script>
 
 <template>
-  <header class="bg-blue-600">
+  <header
+    class="bg-[linear-gradient(to_bottom,var(--ui-bg),var(--ui-bg-accented))]"
+  >
     <UContainer>
-      <nav class="flex items-center justify-between p-4 text-white">
-        <NuxtLink to="/">My Nuxt App</NuxtLink>
+      <nav class="flex items-center justify-between text-highlighted">
+        <NuxtLink to="/">
+          <NuxtImg
+            src="/img/logo.png"
+            alt="Logo"
+            class="h-16 w-auto"
+          />
+        </NuxtLink>
         <ul class="flex items-center gap-4">
           <template v-for="item in navigation">
             <li

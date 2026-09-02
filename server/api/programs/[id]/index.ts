@@ -1,7 +1,6 @@
 import { getProgram } from "~~/server/services/program.service";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id") as string;
-  console.log("Fetching program with ID:", id);
-  return await getProgram(id);
+  return await getProgram(requireRouterParam(event, "id", "Program ID"));
 });

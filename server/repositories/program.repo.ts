@@ -1,5 +1,9 @@
 import { connectDb } from "../db/mongoose";
-import ProgramModel, { Program } from "../models/Program";
+import ProgramModel from "../models/Program";
+import type {
+  CreateProgramInput,
+  UpdateProgramInput,
+} from "~~/shared/types/entities";
 
 export async function findProgram() {
   await connectDb();
@@ -25,7 +29,7 @@ export async function findProgramById(id: string) {
     .lean();
 }
 
-export async function createProgram(data: Program) {
+export async function createProgram(data: CreateProgramInput) {
   await connectDb();
   const doc = await ProgramModel.create(data);
   return doc.toObject();
@@ -36,7 +40,7 @@ export async function deleteProgram(id: string) {
   return ProgramModel.findByIdAndDelete(id).lean();
 }
 
-export async function updateProgram(id: string, data: Program) {
+export async function updateProgram(id: string, data: UpdateProgramInput) {
   await connectDb();
   return ProgramModel.findByIdAndUpdate(id, data, { new: true }).lean();
 }

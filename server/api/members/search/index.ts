@@ -1,23 +1,17 @@
 import { searchMembers } from "~~/server/services/member.service";
+import {
+  optionalQueryString,
+  queryLimit,
+} from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-  const name =
-    typeof query.name === "string"
-      ? query.name
-      : typeof query.q === "string"
-        ? query.q
-        : undefined;
-  const country = typeof query.country === "string" ? query.country : undefined;
-  const category = typeof query.category === "string" ? query.category : undefined;
-  const status = typeof query.status === "string" ? query.status : undefined;
-  const parsedLimit = typeof query.limit === "string" ? Number(query.limit) : 20;
 
   return await searchMembers({
-    query: name,
-    country,
-    category,
-    status,
-    limit: Number.isFinite(parsedLimit) ? parsedLimit : 20,
+    query: optionalQueryString(query.name) ?? optionalQueryString(query.q),
+    country: optionalQueryString(query.country),
+    category: optionalQueryString(query.category),
+    status: optionalQueryString(query.status),
+    limit: queryLimit(query.limit),
   });
 });

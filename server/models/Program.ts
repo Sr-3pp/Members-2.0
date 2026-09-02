@@ -1,4 +1,5 @@
-import mongoose, { InferSchemaType, Schema } from "mongoose";
+import mongoose, { Schema, type Model } from "mongoose";
+import type { Program } from "~~/shared/types/entities";
 
 const ProgramSchema = new Schema(
   {
@@ -34,9 +35,5 @@ const ProgramSchema = new Schema(
   { timestamps: true },
 );
 
-export type Program = InferSchemaType<typeof ProgramSchema> & {
-  _id: string;
-};
-
-export default mongoose.models.Program ||
-  mongoose.model("Program", ProgramSchema);
+export default (mongoose.models.Program as Model<Program> | undefined) ||
+  mongoose.model<Program>("Program", ProgramSchema);

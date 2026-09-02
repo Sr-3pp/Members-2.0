@@ -1,14 +1,6 @@
 import { removeProgram } from "~~/server/services/program.service";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
-
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Program ID is required",
-    });
-  }
-
-  return await removeProgram(id);
+  return await removeProgram(requireRouterParam(event, "id", "Program ID"));
 });

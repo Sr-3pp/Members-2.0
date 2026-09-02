@@ -1,13 +1,10 @@
 import { connectDb } from "../db/mongoose";
-import MemberModel, { type Member } from "../models/Member";
-
-export interface MemberSearchFilters {
-  query?: string;
-  country?: string;
-  category?: string;
-  status?: string;
-  limit?: number;
-}
+import MemberModel from "../models/Member";
+import { escapeRegex, type SearchFilters } from "../utils/search";
+import type {
+  CreateMemberInput,
+  UpdateMemberInput,
+} from "~~/shared/types/entities";
 
 export async function findMember() {
   await connectDb();
@@ -20,7 +17,7 @@ export async function searchMembers({
   category,
   status,
   limit = 20,
-}: MemberSearchFilters) {
+}: SearchFilters) {
   await connectDb();
   const filter: Record<string, unknown> = {};
 
@@ -29,7 +26,7 @@ export async function searchMembers({
   if (category) filter.categories = category;
 
   if (query) {
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escapedQuery = escapeRegex(query);
     filter.$or = [
       { name: { $regex: escapedQuery, $options: "i" } },
       { last_name: { $regex: escapedQuery, $options: "i" } },
@@ -45,7 +42,7 @@ export async function findMemberById(id: string) {
   return MemberModel.findById(id).lean();
 }
 
-export async function createMember(data: Member) {
+export async function createMember(data: CreateMemberInput) {
   await connectDb();
   const doc = await MemberModel.create(data);
   return doc.toObject();
@@ -56,12 +53,7 @@ export async function deleteMember(id: string) {
   return MemberModel.findByIdAndDelete(id).lean();
 }
 
-export async function updateMember(id: string, data: Member) {
+export async function updateMember(id: string, data: UpdateMemberInput) {
   await connectDb();
   return MemberModel.findByIdAndUpdate(id, data, { new: true }).lean();
-}
-
-export async function getMembersByCategory(category: string) {
-  await connectDb();
-  return MemberModel.find({ categories: category }).lean();
 }

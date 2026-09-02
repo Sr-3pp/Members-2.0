@@ -1,7 +1,8 @@
 import { searchMembersByCategory } from "~~/server/services/member.service";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const category = getRouterParam(event, "category");
-
-  return await searchMembersByCategory(category as string);
+  return await searchMembersByCategory(
+    requireRouterParam(event, "category", "Category"),
+  );
 });

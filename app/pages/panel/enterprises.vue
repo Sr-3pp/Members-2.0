@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Enterprise } from "~~/server/models/Enterprise";
+import type { Enterprise } from "~~/shared/types/entities";
 
 const { getEnterprises, deleteEnterprise } = useEnterprise();
 const toast = useToast();

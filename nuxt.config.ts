@@ -16,6 +16,12 @@ export default defineNuxtConfig({
     mongodbUri: process.env.MONGODB_URI || "",
   },
 
+  colorMode: {
+    preference: "dark",
+    fallback: "dark",
+    storageKey: "app-color-mode",
+  },
+
   modules: [
     "@nuxt/a11y",
     "@nuxt/eslint",
@@ -24,6 +30,7 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
     "@nuxt/test-utils",
     "@nuxt/ui",
+    "@vueuse/nuxt",
   ],
 
   css: ["@/assets/css/main.css"],

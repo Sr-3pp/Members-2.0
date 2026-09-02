@@ -1,17 +1,9 @@
 import { patchProgram } from "~~/server/services/program.service";
-import { Program } from "~~/server/models/Program";
+import type { UpdateProgramInput } from "~~/shared/types/entities";
+import { requireRouterParam } from "~~/server/utils/request";
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
-
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Program ID is required",
-    });
-  }
-
-  const body = await readBody<Program>(event);
-
+  const id = requireRouterParam(event, "id", "Program ID");
+  const body = await readBody<UpdateProgramInput>(event);
   return await patchProgram(id, body);
 });

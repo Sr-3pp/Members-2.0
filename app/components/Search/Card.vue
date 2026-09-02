@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Member } from "~~/server/models/Member";
-import type { Enterprise } from "~~/server/models/Enterprise";
-import type { Program } from "~~/server/models/Program";
+import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 const bgByCategory: {
   consultor: string;

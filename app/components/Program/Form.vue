@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { z } from "zod";
 import { compressImageUnder1MB } from "~~/utils/image";
-import type { Program } from "~~/server/models/Program";
-import type { Enterprise } from "~~/server/models/Enterprise";
+import type { Enterprise, Program } from "~~/shared/types/entities";
 
 const props = defineProps<{
   initial?: Program;
