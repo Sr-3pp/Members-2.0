@@ -158,12 +158,7 @@ const displayName = computed(() => {
           <span class="text-sm text-gray-500">{{ (entity as Program).length }} días</span>
         </p>
         <hr />
-        <Map />
-        <NuxtImg
-          v-if="isMember || isEnterprise"
-          :src="`/img/zones/${((entity as any).country!.zone as string).toLowerCase().replace(/ /g, '_')}.png`"
-          :alt="`${(entity as any).country!.zone} zone`"
-        />
+        <Map v-if="isMember || isEnterprise" :withPins="true" :continent="(entity as any).country?.zone " />
         <NuxtImg
           v-else-if="isProgram && programEnterprise?.country?.zone"
           :src="`/img/zones/${programEnterprise.country.zone.toLowerCase().replace(/ /g, '_')}.png`"
