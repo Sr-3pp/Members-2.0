@@ -1119,7 +1119,7 @@ onMounted(() => {
     </svg>
     <slot name="markers" />
     </div>
-    <svg id="pins" :class="{'hidden': !withPins}" width="100%" height="100%" viewBox="0 0 7084 3838" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
+    <svg id="pins" :class="{'hidden': !withPins, active}" width="100%" height="100%" viewBox="0 0 7084 3838" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
             <g id="NorthAmericaPin" :class="continent === 'North America' ? '' : 'hidden'">
                 <path d="M1402.133,1069.983l-55.482,-65.342c-12.496,-14.729 -20.069,-33.764 -20.069,-54.592c0,-46.654 37.821,-84.475 84.475,-84.475c46.654,0 84.475,37.821 84.473,84.473c0,20.828 -7.572,39.865 -20.069,54.592l-55.482,65.347l0,82.314l11.537,-11.537c3.482,-3.482 9.137,-3.482 12.619,0c3.482,3.482 3.482,9.137 -0,12.619l-33.079,33.079l-33.079,-33.079c-3.482,-3.482 -3.482,-9.137 -0,-12.619c3.482,-3.482 9.137,-3.482 12.619,-0l11.537,11.537l0,-82.316Zm8.924,-88.102c19.188,0 34.741,-15.553 34.741,-34.741c0,-19.188 -15.553,-34.741 -34.741,-34.741c-19.188,0 -34.741,15.553 -34.741,34.741c0,19.188 15.553,34.741 34.741,34.741Z"/>
                 <path d="M1428.053,1133.163c6.631,-4.668 15.863,-4.038 21.791,1.89c6.633,6.633 6.633,17.404 -0,24.037l-33.079,33.079c-3.153,3.153 -8.265,3.153 -11.417,-0l-33.079,-33.079c-6.633,-6.633 -6.633,-17.404 -0,-24.037c5.928,-5.928 15.161,-6.558 21.791,-1.89l-0,-60.215l-53.564,-63.083c-13.692,-16.138 -21.987,-36.996 -21.987,-59.816c0,-51.113 41.436,-92.549 92.549,-92.549c51.113,-0 92.549,41.436 92.546,92.547c-0,22.821 -8.295,43.681 -21.987,59.816l-53.564,63.087l-0,60.213Zm-25.92,-63.18l0,82.316l-11.537,-11.537c-3.482,-3.482 -9.137,-3.482 -12.619,0c-3.482,3.482 -3.482,9.137 0,12.619l33.079,33.079l33.079,-33.079c3.482,-3.482 3.482,-9.137 0,-12.619c-3.482,-3.482 -9.137,-3.482 -12.619,-0l-11.537,11.537l0,-82.314l55.482,-65.347c12.496,-14.727 20.069,-33.764 20.069,-54.592c0.002,-46.652 -37.819,-84.473 -84.473,-84.473c-46.654,0 -84.475,37.821 -84.475,84.475c0,20.828 7.572,39.863 20.069,54.592l55.482,65.342Zm8.924,-88.102c-19.188,0 -34.741,-15.553 -34.741,-34.741c0,-19.188 15.553,-34.741 34.741,-34.741c19.188,0 34.741,15.553 34.741,34.741c0,19.188 -15.553,34.741 -34.741,34.741Zm0,-8.073c14.729,0 26.667,-11.939 26.667,-26.667c0,-14.729 -11.939,-26.667 -26.667,-26.667c-14.729,0 -26.667,11.939 -26.667,26.667c0,14.729 11.939,26.667 26.667,26.667Z" />
@@ -1158,7 +1158,7 @@ onMounted(() => {
   --map-transition: transform 0.3s ease-in-out;
   position: relative;
   transform-style: preserve-3d;
-  transform: perspective(1000px) rotateX(var(--map-tilt));
+  transform: perspective(800px) rotateX(var(--map-tilt));
   transform-origin: center center;
   transition: var(--map-transition);
 
@@ -1167,11 +1167,14 @@ onMounted(() => {
   }
 }
 
+
+
 #continents {
   display: block;
   stroke-width: 10px;
   fill: transparent;
   stroke: white;
+  filter: drop-shadow(0px 10px 8px rgba(0, 0, 0, 0.8));
 }
 
 #pins{
@@ -1184,39 +1187,89 @@ onMounted(() => {
 }
 
 #NorthAmericaPin{
-  transform: translate(1%, 15%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(1%, -15%);
+    --transform-bounce: translate(1%, 10%);
+    --transform-active: translate(1%, 15%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
+    opacity: 0;
 }
 #CentralAmericaPin{
-  transform: translate(-1.2%, 3.5%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(-1.2%, 3.5%);
+    --transform-bounce: translate(-1.2%, -3%);
+    --transform-active: translate(-1.2%, 2%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
 }
 #SouthAmericaPin{
-  transform: translate(-3%, 0%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(-3%, 0%);
+    --transform-bounce: translate(-3%, -5%);
+    --transform-active: translate(-3%, -10%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
 }
 #AustraliaPin{
-  transform: translate(4%, -3%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(4%, -3%);
+    --transform-bounce: translate(4%, -9%);
+    --transform-active: translate(4%, -3%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
 }
 #EuropePin{
-  transform: translate(-.5%, 16%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(-.5%, 16%);
+    --transform-bounce: translate(-.5%, 17%);
+    --transform-active: translate(-.5%, 13%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
 }
 #AfricaPin{
-  transform: translate(1%, 4%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(1%, 4%);
+    --transform-bounce: translate(1%, 0%);
+    --transform-active: translate(1%, 5%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
 }
 #AsiaPin{
-  transform: translate(-6%, 16%);
-  fill: #FFF;
-  stroke: var(--color-primary);
+    --transform: translate(-6%, 16%);
+    --transform-bounce: translate(-6%, 10%);
+    --transform-active: translate(-6%, 15%);
+    transform: var(--transform);
+    fill: #FFF;
+    stroke: var(--color-primary);
+}
+
+#pins{
+    &>g{
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+        animation-timing-function: ease-in-out;
+        opacity: 0;
+    }
+
+    &.active{
+        &>g{
+            opacity: 1;
+            transform: var(--transform-active);
+            animation-name: pin-bounce;
+        }
+    }
+
+}
+
+@keyframes pin-bounce {
+  0%, 100% {
+    transform: var(--transform-active);
+  }
+  50% {
+    transform: var(--transform-bounce);
+  }
 }
 
 #NorthAmerica.active{
