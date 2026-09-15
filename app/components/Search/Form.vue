@@ -1,18 +1,11 @@
 <script lang="ts" setup>
 import type { FormSubmitEvent } from "@nuxt/ui/runtime/types/form.js";
 import * as v from "valibot";
-import countries from "~~/data/countries.json";
 import { memberCategoryOptions, memberCategorySlugs } from "~~/shared/utils/categories";
 import type { Member } from "~~/shared/types/entities";
 
 const { searchMember } = useMembers();
-
-const countryItems = countries.map((country) => ({
-  value: country.code,
-  label: country.label,
-}));
-
-const countryCodes = countries.map((country) => country.code);
+const { options: countryItems, loading: loadingCountries, find: findCountry } = useCountries();
 
 const schema = v.object({
   name: v.pipe(
@@ -20,7 +13,7 @@ const schema = v.object({
     v.trim(),
     v.maxLength(100, "Search text must be 100 characters or fewer"),
   ),
-  country: v.optional(v.picklist(countryCodes, "Select a valid country")),
+  country: v.optional(v.pipe(v.string(), v.check((code) => !!findCountry(code), "Select a valid country"))),
   category: v.optional(v.picklist(memberCategorySlugs, "Select a valid category")),
 });
 
@@ -71,6 +64,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         color="secondary"
         class="w-full"
         :items="countryItems"
+        :loading="loadingCountries"
         value-key="value"
         :ui="{ placeholder: 'text-gray-200' }"
       />

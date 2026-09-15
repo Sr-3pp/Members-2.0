@@ -2,6 +2,7 @@ import type { TableColumn } from "@nuxt/ui/runtime/types/index.js";
 import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 export type PanelRecordKind = "members" | "enterprises" | "programs";
+export const PANEL_PAGE_SIZE = 10;
 type PanelRecord = Member | Enterprise | Program;
 
 export const usePanelRecords = (kind: PanelRecordKind) => {
@@ -20,6 +21,27 @@ export const usePanelRecords = (kind: PanelRecordKind) => {
         : useProgram().getPrograms()
   );
   const records = computed<PanelRecord[]>(() => data.value ?? []);
+
+  // Client-side pagination: the lists are small enough to fetch whole.
+  const page = ref(1);
+  const pageCount = computed(() =>
+    Math.max(1, Math.ceil(records.value.length / PANEL_PAGE_SIZE)),
+  );
+  // Deleting the last row of the final page would otherwise leave an empty page.
+  watch(pageCount, (count) => {
+    if (page.value > count) page.value = count;
+  });
+  const pagedRecords = computed(() =>
+    records.value.slice(
+      (page.value - 1) * PANEL_PAGE_SIZE,
+      page.value * PANEL_PAGE_SIZE,
+    ),
+  );
+  const pageRange = computed(() => ({
+    start: records.value.length ? (page.value - 1) * PANEL_PAGE_SIZE + 1 : 0,
+    end: Math.min(page.value * PANEL_PAGE_SIZE, records.value.length),
+    total: records.value.length,
+  }));
   const columns: TableColumn<PanelRecord>[] = [
     { accessorKey: "status", header: "Status" },
     { id: "name", header: kind === "programs" ? "Title" : "Name" },
@@ -76,14 +98,34 @@ export const usePanelRecords = (kind: PanelRecordKind) => {
     }
   };
 
-  const handleDelete = async (record: PanelRecord) => {
+  // Deleting is a two-step flow: the row asks for confirmation, and the
+  // confirmation modal performs the actual request.
+  const deleteCandidate = ref<PanelRecord>();
+  const deletingCandidate = computed(
+    () => !!deleteCandidate.value && deleting.value.has(deleteCandidate.value._id),
+  );
+
+  const requestDelete = (record: PanelRecord) => {
     if (deleting.value.has(record._id) || saving.value.has(record._id)) return;
+    deleteCandidate.value = record;
+  };
+
+  const cancelDelete = () => {
+    if (deletingCandidate.value) return;
+    deleteCandidate.value = undefined;
+  };
+
+  const confirmDelete = async () => {
+    const record = deleteCandidate.value;
+    if (!record || deleting.value.has(record._id)) return;
     deleting.value.add(record._id);
     try {
       await $fetch(`/api/${kind}/${record._id}`, { method: "DELETE" });
+      deleteCandidate.value = undefined;
       await refresh();
       toast.add({ title: `${config.label} Deleted`, color: "success" });
     } catch {
+      // Keep the modal open so the user can retry or back out.
       toast.add({
         title: `Could not delete ${config.label.toLowerCase()}`,
         description: "Please try again.",
@@ -97,6 +139,10 @@ export const usePanelRecords = (kind: PanelRecordKind) => {
   return {
     config,
     records,
+    page,
+    pageSize: PANEL_PAGE_SIZE,
+    pagedRecords,
+    pageRange,
     columns,
     status,
     error,
@@ -110,6 +156,10 @@ export const usePanelRecords = (kind: PanelRecordKind) => {
     openForm,
     handleSubmit,
     handleStatusChange,
-    handleDelete,
+    deleteCandidate,
+    deletingCandidate,
+    requestDelete,
+    cancelDelete,
+    confirmDelete,
   };
 };

@@ -1,4 +1,5 @@
 import mongoose, { Schema, type Model } from "mongoose";
+import { ZONES } from "../../shared/utils/zones";
 import type { Enterprise } from "~~/shared/types/entities";
 
 const EnterpriseSchema = new Schema(
@@ -21,7 +22,7 @@ const EnterpriseSchema = new Schema(
       code: { type: String },
       name: { type: String },
       flag: { type: String },
-      zone: { type: String },
+      zone: { type: String, enum: ZONES },
     },
     city: { type: String },
     nationality: { type: String },

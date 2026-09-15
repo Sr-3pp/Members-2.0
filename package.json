@@ -13,7 +13,9 @@
     "test:coverage": "vitest --coverage",
     "test:unit": "vitest --project unit",
     "test:nuxt": "vitest --project nuxt",
-    "test:e2e": "vitest --project e2e"
+    "test:e2e": "vitest --project e2e",
+    "db:seed": "jiti scripts/seed.ts",
+    "countries:generate": "jiti scripts/generate-countries.ts"
   },
   "dependencies": {
     "@nuxt/a11y": "1.0.0-alpha.1",

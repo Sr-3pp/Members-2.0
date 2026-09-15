@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { memberCategorySlugs } from "../shared/utils/categories";
 
 const socialSchema = z.object({
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
@@ -16,40 +17,32 @@ const skillsSchema = z
   )
   .optional();
 
-export const memberFormSchema = z.object({
+const profileFormSchema = z.object({
   folio: z.string(),
   name: z.string(),
-  last_name: z.string(),
-  email: z.string().email("Invalid email"),
   phone: z.string(),
-  mobile: z.string().optional(),
-  range: z.string(),
   picture: z.string().optional().or(z.literal("")),
   social: socialSchema,
-  countryCode: z.string(),
+  countryCode: z.string().length(2, "Select a country"),
   city: z.string().optional(),
   nationality: z.string().optional(),
-  languages: z.array(z.string()).optional(),
-  education: z.string(),
   resume: z.string(),
-  categories: z.array(z.string()),
   skills: skillsSchema,
   status: z.enum(["active", "inactive", "pending", "blocked"]),
 });
 
-export const enterpriseFormSchema = z.object({
-  folio: z.string(),
-  name: z.string(),
-  phone: z.string(),
-  picture: z.string().optional().or(z.literal("")),
-  social: socialSchema,
-  countryCode: z.string(),
-  city: z.string().optional(),
-  nationality: z.string().optional(),
+export const memberFormSchema = profileFormSchema.extend({
+  last_name: z.string(),
+  email: z.string().email("Invalid email"),
+  mobile: z.string().optional(),
+  range: z.string(),
+  languages: z.array(z.string()).optional(),
+  education: z.string(),
+  categories: z.array(z.enum(memberCategorySlugs)),
+});
+
+export const enterpriseFormSchema = profileFormSchema.extend({
   description: z.string(),
-  resume: z.string(),
-  skills: skillsSchema,
-  status: z.enum(["active", "inactive", "pending", "blocked"]),
 });
 
 export const programFormSchema = z.object({

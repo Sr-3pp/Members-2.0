@@ -104,9 +104,11 @@ const detailPath = computed(() => {
           <span
             class="p-1 border-1 border-black rounded-full flex-shring-0 -mt-6 overflow-hidden"
           >
-            <NuxtImg
+            <img
+              v-if="displayFlag"
               class="size-8 object-cover rounded-full"
-              :src="displayFlag || ''"
+              :src="displayFlag"
+              alt=""
             />
           </span>
         </figure>

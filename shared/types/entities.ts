@@ -1,3 +1,6 @@
+import type { MemberCategory } from "../utils/categories";
+import type { Zone } from "../utils/zones";
+
 export type MemberStatus = "active" | "inactive" | "pending" | "blocked";
 export type ProgramStatus = "active" | "inactive" | "archived";
 export type MemberRange = "afiliado" | "especialista" | "experto" | "profesional";
@@ -13,7 +16,7 @@ export interface Country {
   code?: string;
   name?: string;
   flag?: string;
-  zone?: string;
+  zone?: Zone;
 }
 
 export interface Skill {
@@ -32,7 +35,7 @@ export interface Member {
   range: MemberRange;
   picture?: string;
   social?: SocialLinks;
-  categories: string[];
+  categories: MemberCategory[];
   country?: Country;
   city?: string;
   nationality?: string;

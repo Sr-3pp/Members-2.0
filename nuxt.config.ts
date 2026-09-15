@@ -44,4 +44,10 @@ export default defineNuxtConfig({
   },
 
   css: ["@/assets/css/main.css"],
+
+  // Country flags are downloaded once and kept on disk (see server/api/flags).
+  nitro: {
+    storage: { flags: { driver: "fs", base: "./.data/flags" } },
+    devStorage: { flags: { driver: "fs", base: "./.data/flags" } },
+  },
 });

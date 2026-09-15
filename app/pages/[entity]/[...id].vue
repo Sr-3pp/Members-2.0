@@ -79,6 +79,15 @@ const displayName = computed(() => {
   const last = (m as Member).last_name ?? "";
   return `${m.name} ${isMember.value ? last : ""}`.trim();
 });
+
+const displayRingColor = computed(() => {
+  if (isProgram.value) return categoryDefinitions.programs.ring;
+  if (isEnterprise.value) return categoryDefinitions.enterprise.ring;
+  if (!isMember.value || !entity.value) return "";
+
+  const category = (entity.value as Member).categories[0];
+  return category && isMemberCategory(category) ? categoryDefinitions[category].ring : "";
+});
 </script>
 
 <template>
@@ -87,18 +96,24 @@ const displayName = computed(() => {
       <div
         class="col-span-1 sm:col-span-6 md:col-span-3 flex flex-col items-center gap-6"
       >
-        <NuxtImg
-          :src="displayImage"
-          :alt="displayName"
-        />
-        <div v-if="isMember || isEnterprise" class="flex items-center gap-3">
+        <figure
+          class="rounded-full overflow-hidden aspect-square border-8 border-white ring-4 w-full md:w-4/5 mx-auto"
+          :class="displayRingColor"
+        >
+          <NuxtImg
+            :src="displayImage"
+            :alt="displayName"
+            class="w-full h-full"
+          />
+        </figure>
+        <div v-if="isMember || isEnterprise" class="flex gap-3 w-full">
           <img
             class="size-10 rounded-full border border-red-300 object-cover p-1"
             :src="(entity as any).country?.flag as string"
             :alt="`flag from ${(entity as any).country?.name}`"
           />
           <div class="flex flex-col gap-4">
-            <h3 class="flex flex-col gap-2 text-center">
+            <h3 class="flex flex-col gap-2 w-full">
               <span>
                 {{ (entity as any).country?.name }} <br />
                 <small>{{ (entity as any).city }}</small>
@@ -107,7 +122,7 @@ const displayName = computed(() => {
             </h3>
           </div>
         </div>
-        <div v-else-if="isProgram && programEnterprise" class="flex items-center gap-3">
+        <div v-else-if="isProgram && programEnterprise" class="flex w-full gap-3">
           <img
             class="size-10 rounded-full border border-red-300 object-cover p-1"
             :src="programEnterprise.country?.flag as string"
@@ -123,7 +138,7 @@ const displayName = computed(() => {
             </h3>
           </div>
         </div>
-        <div v-if="isMember" class="flex items-center gap-4">
+        <div v-if="isMember" class="flex items-center w-full gap-4">
           <NuxtImg
             class="size-10"
             :src="`/img/medals/${(entity as Member).range}.png`"

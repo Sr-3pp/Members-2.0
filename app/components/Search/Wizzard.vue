@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { searchCategoryOptions, type MemberCategory, type SearchCategory } from "~~/shared/utils/categories";
 import type { Member, ProgramWithEnterprise } from "~~/shared/types/entities";
-import { countryOptions } from "~~/utils/formOptions";
 
 const { searchByCategory } = useEntitySearch();
 const { loading, run } = useLatestRequest();
@@ -9,10 +8,11 @@ const { loading, run } = useLatestRequest();
 // USelectMenu reserves the empty string for "no selection" and throws on an item
 // that uses it, so the catch-all entry needs a real value of its own.
 const ALL_COUNTRIES = "all";
-const countryItems = [
+const { options: countryOptions } = useCountries();
+const countryItems = computed(() => [
   { label: "Todos los países", value: ALL_COUNTRIES },
-  ...countryOptions,
-];
+  ...countryOptions.value,
+]);
 
 const props = withDefaults(defineProps<{
   members?: Member[];
@@ -172,12 +172,12 @@ watch(
     <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
       <li v-for="item in searchCategoryOptions" :key="`search-item-${item.value}`">
         <button
-          class="flex w-full flex-col gap-4 items-center"
+          class="flex w-full flex-col gap-4 items-center cursor-pointer transition-all duration-300 hover:transformY-1 hover:scale-105"
           @click="searchFor(item.value)"
         >
           <CategoryIcon
-            class="category-button-icon mx-auto"
-            :class="categoriesCompact ? 'w-1/2' : 'w-full'"
+            class="category-button-icon mx-auto transition-all duration-300"
+            :class="{'w-1/2': categoriesCompact, 'w-full': !categoriesCompact, 'ring-2 ring-secondary scale-105': currentCategory === item.value}"
             :category="item.value"
           />
           <span class="text-inverted">{{ item.label }}</span>

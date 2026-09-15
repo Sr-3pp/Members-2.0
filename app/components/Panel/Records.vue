@@ -6,6 +6,10 @@ const props = defineProps<{ kind: PanelRecordKind }>();
 const {
   config,
   records,
+  page,
+  pageSize,
+  pagedRecords,
+  pageRange,
   columns,
   status,
   error,
@@ -19,48 +23,19 @@ const {
   openForm,
   handleSubmit,
   handleStatusChange,
-  handleDelete,
+  deleteCandidate,
+  deletingCandidate,
+  requestDelete,
+  cancelDelete,
+  confirmDelete,
 } = usePanelRecords(props.kind);
 
-const modalTitles: Record<'new' | 'edit', Record<'member' | 'enterprise' | 'program', { title: string; description: string }>> = {
-  new: {
-    member: {
-      title: "New Member",
-      description: "Create New Member"
-    },
-    enterprise: {
-      title: "New Enterprise",
-      description: "Create New Enterprise"
-    },
-    program: {
-      title: "New Program",
-      description: "Create New Program"
-    }
-  },
-  edit: {
-    member: {
-      title: "Edit Member",
-      description: "Edit Member Details"
-    },
-    enterprise: {
-      title: "Edit Enterprise",
-      description: "Edit Enterprise Details"
-    },
-    program: {
-      title: "Edit Program",
-      description: "Edit Program Details"
-    }
-  }
-};
-
-const modalTitle = computed(() => {
-  const action = currentRecord.value ? 'edit' : 'new';
-  return modalTitles[action][config.label.toLowerCase() as 'member' | 'enterprise' | 'program'].title;
-});
-const modalDescription = computed(() => {
-  const action = currentRecord.value ? 'edit' : 'new';
-  return modalTitles[action][config.label.toLowerCase() as 'member' | 'enterprise' | 'program'].description;
-});
+const modalTitle = computed(() =>
+  `${currentRecord.value ? "Edit" : "New"} ${config.label}`,
+);
+const modalDescription = computed(() =>
+  currentRecord.value ? `Edit ${config.label} Details` : `Create New ${config.label}`,
+);
 </script>
 
 <template>
@@ -71,7 +46,7 @@ const modalDescription = computed(() => {
     </div>
     <UAlert v-if="error" color="error" :title="`Could not load ${kind}`" description="Please try again."
       :actions="[{ label: 'Retry', onClick: () => refresh() }]" />
-    <UTable :data="records" :columns="columns" :get-row-id="(record) => record._id" :loading="status === 'pending'"
+    <UTable :data="pagedRecords" :columns="columns" :get-row-id="(record) => record._id" :loading="status === 'pending'"
       :empty="`No ${kind} found.`">
       <template #status-cell="{ row }">
         <USwitch :model-value="row.original.status === 'active'" :loading="saving.has(row.original._id)"
@@ -90,17 +65,63 @@ const modalDescription = computed(() => {
           <UButton icon="lucide-trash" color="error" :aria-label="`Delete ${config.label.toLowerCase()}`"
             :loading="deleting.has(row.original._id)"
             :disabled="saving.has(row.original._id) || deleting.has(row.original._id)"
-            @click="handleDelete(row.original)" />
+            @click="requestDelete(row.original)" />
         </div>
       </template>
     </UTable>
+    <div
+      v-if="records.length > pageSize"
+      class="flex flex-wrap items-center justify-between gap-4"
+    >
+      <p class="text-sm text-muted">
+        Showing {{ pageRange.start }}-{{ pageRange.end }} of {{ pageRange.total }} {{ kind }}
+      </p>
+      <UPagination
+        v-model:page="page"
+        :items-per-page="pageSize"
+        :total="records.length"
+        :sibling-count="1"
+        show-edges
+      />
+    </div>
+    <UModal
+      :open="!!deleteCandidate"
+      :title="`Delete ${config.label.toLowerCase()}`"
+      :description="`This will permanently remove ${deleteCandidate ? displayName(deleteCandidate) : ''}.`"
+      :dismissible="!deletingCandidate"
+      @update:open="(open) => !open && cancelDelete()"
+    >
+      <template #body>
+        <p>
+          You are about to delete
+          <strong>{{ deleteCandidate ? displayName(deleteCandidate) : "" }}</strong>.
+          This action cannot be undone.
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end gap-2">
+          <UButton variant="ghost" :disabled="deletingCandidate" @click="cancelDelete">
+            Cancel
+          </UButton>
+          <UButton
+            color="error"
+            icon="lucide-trash"
+            :loading="deletingCandidate"
+            @click="confirmDelete"
+          >
+            Delete {{ config.label.toLowerCase() }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
     <UModal v-model:open="modalOpen" :title="modalTitle" :description="modalDescription">
       <template #body>
         <MemberForm v-if="kind === 'members'" :initial="(currentRecord as Member | undefined)"
-          @submitted="handleSubmit" />
+          @submitted="handleSubmit" @cancel="modalOpen = false" />
         <EnterpriseForm v-else-if="kind === 'enterprises'" :initial="(currentRecord as Enterprise | undefined)"
-          @submitted="handleSubmit" />
-        <ProgramForm v-else :initial="(currentRecord as Program | undefined)" @submitted="handleSubmit" />
+          @submitted="handleSubmit" @cancel="modalOpen = false" />
+        <ProgramForm v-else :initial="(currentRecord as Program | undefined)" @submitted="handleSubmit"
+          @cancel="modalOpen = false" />
       </template>
     </UModal>
   </div>

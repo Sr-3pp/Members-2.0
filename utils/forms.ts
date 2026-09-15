@@ -1,6 +1,22 @@
-import type { Country, Skill, SocialLinks } from "../shared/types/entities";
+import {
+  findCountry,
+  toCountry,
+  type CountryEntry,
+} from "../shared/utils/countries";
+import type {
+  Country,
+  Enterprise,
+  Member,
+  Skill,
+  SocialLinks,
+} from "../shared/types/entities";
 
-export const createFormSkills = (skills?: Skill[]) =>
+export interface FormSkill {
+  name: string;
+  level: number;
+}
+
+export const createFormSkills = (skills?: Skill[]): FormSkill[] =>
   skills?.length
     ? skills.map((skill) => ({
         name: skill.name ?? "",
@@ -13,6 +29,25 @@ export const createFormSocial = (social?: SocialLinks) => ({
   fb: social?.fb ?? "",
   tw: social?.tw ?? "",
   in: social?.in ?? "",
+});
+
+/**
+ * Editable state shared by the member and enterprise forms. Entity-specific
+ * fields are added on top of this by each form composable.
+ */
+export const createProfileFormState = (initial?: Member | Enterprise) => ({
+  folio: initial?.folio ?? "",
+  name: initial?.name ?? "",
+  phone: initial?.phone ?? "",
+  pictureFile: null as File | null,
+  picture: initial?.picture ?? "",
+  social: createFormSocial(initial?.social),
+  countryCode: initial?.country?.code ?? "",
+  city: initial?.city ?? "",
+  nationality: initial?.nationality ?? "",
+  resume: initial?.resume ?? "",
+  skills: createFormSkills(initial?.skills),
+  status: initial?.status ?? "active",
 });
 
 export const cleanFormSkills = (skills: Skill[]) =>
@@ -32,26 +67,20 @@ export const trimFormStrings = <T extends object>(values: T): T =>
     ]),
   ) as T;
 
-export const resolveFormCountry = async (
+/**
+ * Resolves the selected code against the country list (from `/api/countries`
+ * or the bundled copy), so the stored zone is always one of the fixed values.
+ */
+export const resolveFormCountry = (
   countryCode: string,
-): Promise<Country> => {
-  const code = countryCode.toLowerCase();
-  const country = await $fetch<{
-    name: { common: string };
-    flags: { svg: string };
-    subregion: string;
-  }>(
-    `https://restcountries.com/v3.1/alpha/${code}?fields=name,flags,subregion`,
-  );
-  return {
-    code,
-    name: country.name.common || "",
-    flag: country.flags.svg || "",
-    zone: country.subregion || "",
-  };
+  countries: CountryEntry[],
+): Country => {
+  const country = findCountry(countries, countryCode);
+  if (!country) throw new Error(`Unknown country code "${countryCode}"`);
+  return toCountry(country);
 };
 
-export const buildProfilePayload = async <
+export const buildProfilePayload = <
   T extends {
     pictureFile: File | null;
     countryCode: string;
@@ -59,12 +88,13 @@ export const buildProfilePayload = async <
   },
 >(
   form: T,
+  countries: CountryEntry[],
 ) => {
   const { pictureFile: _pictureFile, countryCode, skills, ...values } = form;
   return {
     ...trimFormStrings(values),
     skills: cleanFormSkills(skills),
-    country: await resolveFormCountry(countryCode),
+    country: resolveFormCountry(countryCode, countries),
   };
 };
 
