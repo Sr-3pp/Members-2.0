@@ -107,10 +107,9 @@ const displayRingColor = computed(() => {
           />
         </figure>
         <div v-if="isMember || isEnterprise" class="flex gap-3 w-full">
-          <img
+          <CountryFlag
             class="size-10 rounded-full border border-red-300 object-cover p-1"
-            :src="(entity as any).country?.flag as string"
-            :alt="`flag from ${(entity as any).country?.name}`"
+            :country="(entity as Member | Enterprise).country"
           />
           <div class="flex flex-col gap-4">
             <h3 class="flex flex-col gap-2 w-full">
@@ -123,10 +122,9 @@ const displayRingColor = computed(() => {
           </div>
         </div>
         <div v-else-if="isProgram && programEnterprise" class="flex w-full gap-3">
-          <img
+          <CountryFlag
             class="size-10 rounded-full border border-red-300 object-cover p-1"
-            :src="programEnterprise.country?.flag as string"
-            :alt="`flag from ${programEnterprise.country?.name}`"
+            :country="programEnterprise.country"
           />
           <div class="flex flex-col gap-4">
             <h3 class="flex flex-col gap-2 text-center">

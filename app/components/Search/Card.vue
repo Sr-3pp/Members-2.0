@@ -33,10 +33,10 @@ const displayPicture = computed(() => {
   const base = instance.value as Member | Enterprise | null;
   return (base?.picture as string) ?? "";
 });
-const displayFlag = computed(() => {
-  if (isProgram.value) return programEnterprise.value?.country?.flag ?? "";
+const displayCountry = computed(() => {
+  if (isProgram.value) return programEnterprise.value?.country ?? null;
   const base = instance.value as Member | Enterprise | null;
-  return base?.country?.flag ?? "";
+  return base?.country ?? null;
 });
 type ContactSource =
   | (Member & { social?: Member["social"] })
@@ -104,11 +104,9 @@ const detailPath = computed(() => {
           <span
             class="p-1 border-1 border-black rounded-full flex-shring-0 -mt-6 overflow-hidden"
           >
-            <img
-              v-if="displayFlag"
+            <CountryFlag
               class="size-8 object-cover rounded-full"
-              :src="displayFlag"
-              alt=""
+              :country="displayCountry"
             />
           </span>
         </figure>
