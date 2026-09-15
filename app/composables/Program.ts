@@ -14,9 +14,14 @@ export const useProgram = () => {
       $fetch<Program>(`/api/programs/${id}`),
     );
 
+  // `name` matches the program title; `country` resolves through its enterprise.
+  const searchProgram = (filters: EntitySearchFilters) =>
+    fetchEntitySearch<Program>("/api/programs/search", filters);
+
   return {
     getPrograms,
     getProgram,
     deleteProgram,
+    searchProgram,
   };
 };

@@ -1,30 +1,18 @@
 <script setup lang="ts">
-import type { Enterprise, Member, Program } from "~~/shared/types/entities";
-
-const bgByCategory: {
-  consultor: string;
-  coach: string;
-  capacitador: string;
-  "certificaciones-especiales": string;
-  program: string;
-  enterprise: string;
-} = {
-  consultor: "bg-consultor",
-  coach: "bg-coach",
-  capacitador: "bg-capacitador",
-  "certificaciones-especiales": "bg-certificaciones-especiales",
-  program: "bg-program",
-  enterprise: "bg-enterprise",
-};
+import { categoryDefinitions, type SearchCategory } from "~~/shared/utils/categories";
+import type {
+  Enterprise,
+  Member,
+  ProgramWithEnterprise,
+} from "~~/shared/types/entities";
 
 const { member, enterprise, program } = defineProps<{
-  category: keyof typeof bgByCategory;
+  category: SearchCategory;
   member?: Member;
   enterprise?: Enterprise;
-  program?: (Program & { enterprise?: Enterprise | null }) | null;
+  program?: ProgramWithEnterprise | null;
 }>();
 
-type ProgramWithEnterprise = Program & { enterprise?: Enterprise | null };
 const instance = computed<Member | Enterprise | ProgramWithEnterprise | null>(
   () => member ?? enterprise ?? (program as ProgramWithEnterprise | null) ?? null,
 );
@@ -85,99 +73,104 @@ const detailPath = computed(() => {
 </script>
 
 <template>
-  <article v-if="instance" class="mt-8 bg-white">
-    <div
-      class="flex relative p-6"
-      :class="bgByCategory[category as keyof typeof bgByCategory]"
-    >
-      <figure
-        class="flex justify-center items-center absolute bottom-full right-0 gap-2 h-10 px-6 py-4"
-        :class="`bg-${category}`"
+  <UCard
+    v-if="instance"
+    :ui="{
+      root: 'bg-white border-none px-0 ring-0 overflow-visible',
+      header: 'border-none px-0 sm:px-0 pt-10 pb-0',
+      body: 'border-1 border-light-gray'
+    }"
+  >
+    <template #header>
+      <div
+        class="flex relative"
+        :class="categoryDefinitions[category].background"
       >
-        <figcaption class="capitalize">
-          {{ category!.replace(/-/g, " ") }}
-        </figcaption>
-        <NuxtImg
-          class="size-8"
-          :src="`/img/categories/${category}.png`"
-          :alt="`category ${category} image`"
-        />
-      </figure>
-      <figure class="relative flex flex-col items-center w-2/8 -mt-16">
-        <NuxtImg
-          class="p-2 bg-white rounded-full"
-          :src="displayPicture"
-          :alt="`picture of ${displayName}`"
-        />
-        <span
-          class="p-1 border-1 border-black rounded-full flex-shring-0 -mt-6 overflow-hidden"
+        <figure
+          class="flex justify-center items-center absolute bottom-full right-0 gap-2 h-10 px-6 py-4"
+          :class="categoryDefinitions[category].background"
         >
+          <figcaption class="capitalize">
+            {{ categoryDefinitions[category].label }}
+          </figcaption>
+          <CategoryIcon class="size-8 !p-1" :category="category" />
+        </figure>
+        <figure class="relative flex flex-col items-center w-2/8 -mt-16 ml-6 mb-6">
           <NuxtImg
-            class="size-8 object-cover rounded-full"
-            :src="displayFlag || ''"
+            class="p-2 bg-white rounded-full"
+            :src="displayPicture"
+            :alt="`picture of ${displayName}`"
           />
-        </span>
-      </figure>
-
-      <div class="flex flex-col gap-2 ml-auto text-right">
-        <h3 class="font-bold text-lg">
-          {{ displayName }}
-        </h3>
-        <ul class="flex justify-end gap-2">
-          <template v-for="(social, key) in contactSource?.social">
-            <li
-              class=""
-              :key="`instance.card-social-${social}`"
-              v-if="key !== 'website'"
-            >
-              <NuxtImg class="size-8" :src="`/img/resources/${key}-logo.png`" />
-            </li>
-          </template>
-        </ul>
+          <span
+            class="p-1 border-1 border-black rounded-full flex-shring-0 -mt-6 overflow-hidden"
+          >
+            <NuxtImg
+              class="size-8 object-cover rounded-full"
+              :src="displayFlag || ''"
+            />
+          </span>
+        </figure>
+  
+        <div class="flex flex-col gap-2 ml-auto text-right justify-center px-6">
+          <h3 class="font-bold text-lg">
+            {{ displayName }}
+          </h3>
+          <ul class="flex justify-end gap-2">
+            <template v-for="(social, key) in contactSource?.social">
+              <li
+                class=""
+                :key="`instance.card-social-${social}`"
+                v-if="key !== 'website'"
+              >
+                <NuxtImg class="size-8" :src="`/img/resources/${key}-logo.png`" />
+              </li>
+            </template>
+          </ul>
+        </div>
       </div>
-    </div>
+    </template>
 
-    <div class="px-6 pb-6 pt-4 flex flex-col gap-3">
-      <p class="text-black flex justify-between">
-        <span> Folio: </span>
+    <div class="px-4 pt-4 flex flex-col gap-3">
+      <p class="text-inverted flex justify-between">
+        <span class="font-bold"> Folio: </span>
         <span>
           {{ contactSource?.folio }}
         </span>
       </p>
       <hr />
       <template v-if="isMember">
-        <p class="text-black flex justify-between">
-          <span> instance.Type: </span>
+        <p class="text-inverted flex justify-between">
+          <span class="font-bold"> Tipo de Miembro: </span>
           <span>
             {{ (instance as Member)?.range }}
           </span>
         </p>
         <hr />
-        <p class="text-black flex justify-between">
-          <span> E-mail: </span>
-          <span>
+        <p class="text-inverted flex justify-between">
+          <span class="font-bold"> Correo electrónico: </span>
+          <a :href="`mailto:${(instance as Member)?.email}`">
             {{ (instance as Member)?.email }}
-          </span>
+          </a>
         </p>
         <hr />
       </template>
       <p
-        class="text-black flex justify-between"
+        class="text-inverted flex justify-between"
         v-if="contactSource?.social?.website"
       >
-        <span> Website: </span>
-        <span>
+        <span class="font-bold"> Sitio web: </span>
+        <a :href="contactSource?.social?.website">
           {{ contactSource?.social?.website }}
-        </span>
+        </a>
       </p>
       <hr />
       <UButton
         :to="detailPath"
-        color="primary"
+        color="secondary"
         class="mx-auto"
       >
-        More Info
+        Más información
       </UButton>
     </div>
-  </article>
+  </UCard>
 </template>

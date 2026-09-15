@@ -37,10 +37,6 @@ export async function patchMember(id: string, input: UpdateMemberInput) {
   return requireEntity(await updateMember(id, input), "Member");
 }
 
-export async function searchMembersByCategory(category: string) {
-  return await searchMembers({ category });
-}
-
 export async function searchMembers(filters: SearchFilters) {
   return await repoSearchMembers(normalizeSearchFilters(filters));
 }

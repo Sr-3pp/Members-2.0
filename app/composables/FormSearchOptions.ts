@@ -8,20 +8,15 @@ export const useFormSearchOptions = <T>(
   toOption: (record: T) => SelectOption,
 ) => {
   const options = ref<SelectOption[]>([]);
-  const loading = ref(false);
-  let latestRequest = 0;
+  const { loading, run } = useLatestRequest();
 
   const load = async (term = "") => {
-    const request = ++latestRequest;
-    loading.value = true;
-    try {
-      const results = await $fetch<T[]>(endpoint, {
+    const results = await run(() =>
+      $fetch<T[]>(endpoint, {
         params: { q: term, status: "active", limit: 20 },
-      });
-      if (request === latestRequest) options.value = results.map(toOption);
-    } finally {
-      if (request === latestRequest) loading.value = false;
-    }
+      }),
+    );
+    if (results) options.value = results.map(toOption);
   };
 
   return { options, loading, load };

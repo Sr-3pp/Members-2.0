@@ -3,11 +3,23 @@ defineProps<{
     continent: string
     withPins: boolean
 }>()
+
+const active = ref(false);
+
+onMounted(() => {
+    setTimeout(() => {
+        active.value = true;
+    }, 1000);
+});
 </script>
 
 <template>
-<div class="relative -mt-25 -mb-20"> 
-    <svg id="continents" width="100%" height="100%" viewBox="0 0 7084 3838" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
+<div
+    class="relative transition-[margin] duration-300 ease-in-out"
+    :class="active ? '-mt-25 -mb-20' : 'mt-0 mb-0'"
+>
+    <div class="map-surface" :class="{ active }">
+    <svg id="continents" width="100%" height="100%" viewBox="0 0 7084 3838" version="1.1" xmlns="http://www.w3.org/2000/svg">
             <g id="Groelandia">
                 <path d="M2607.314,224.803c0,-20.822 -16.912,-37.82 -37.784,-37.82c-20.847,0 -37.805,16.997 -37.805,37.82c0,20.918 16.957,37.714 37.805,37.714c20.867,0 37.784,-16.801 37.784,-37.714Z" />
                 <path d="M2699.891,224.803c0,-20.822 -16.912,-37.82 -37.739,-37.82c-20.938,0 -37.85,16.997 -37.85,37.82c0,20.918 16.912,37.714 37.85,37.714c20.832,0 37.739,-16.801 37.739,-37.714Z" />
@@ -1105,6 +1117,8 @@ defineProps<{
                 </g>
             </g>
     </svg>
+    <slot name="markers" />
+    </div>
     <svg id="pins" :class="{'hidden': !withPins}" width="100%" height="100%" viewBox="0 0 7084 3838" version="1.1" xmlns="http://www.w3.org/2000/svg"> 
             <g id="NorthAmericaPin" :class="continent === 'North America' ? '' : 'hidden'">
                 <path d="M1402.133,1069.983l-55.482,-65.342c-12.496,-14.729 -20.069,-33.764 -20.069,-54.592c0,-46.654 37.821,-84.475 84.475,-84.475c46.654,0 84.475,37.821 84.473,84.473c0,20.828 -7.572,39.865 -20.069,54.592l-55.482,65.347l0,82.314l11.537,-11.537c3.482,-3.482 9.137,-3.482 12.619,0c3.482,3.482 3.482,9.137 -0,12.619l-33.079,33.079l-33.079,-33.079c-3.482,-3.482 -3.482,-9.137 -0,-12.619c3.482,-3.482 9.137,-3.482 12.619,-0l11.537,11.537l0,-82.316Zm8.924,-88.102c19.188,0 34.741,-15.553 34.741,-34.741c0,-19.188 -15.553,-34.741 -34.741,-34.741c-19.188,0 -34.741,15.553 -34.741,34.741c0,19.188 15.553,34.741 34.741,34.741Z"/>
@@ -1139,9 +1153,22 @@ defineProps<{
 </template>
 
 <style scoped>
-#continents {
-  transform: perspective(1000px) rotateX(55deg);
+.map-surface {
+  --map-tilt: 0deg;
+  --map-transition: transform 0.3s ease-in-out;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(var(--map-tilt));
   transform-origin: center center;
+  transition: var(--map-transition);
+
+  &.active {
+    --map-tilt: 55deg;
+  }
+}
+
+#continents {
+  display: block;
   stroke-width: 10px;
   fill: transparent;
   stroke: white;
@@ -1158,62 +1185,62 @@ defineProps<{
 
 #NorthAmericaPin{
   transform: translate(1%, 15%);
-  fill: blue;
-  stroke: red;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #CentralAmericaPin{
   transform: translate(-1.2%, 3.5%);
-  fill: red;
-  stroke: blue;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #SouthAmericaPin{
   transform: translate(-3%, 0%);
-  fill: green;
-  stroke: yellow;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #AustraliaPin{
   transform: translate(4%, -3%);
-  fill: orange;
-  stroke: purple;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #EuropePin{
   transform: translate(-.5%, 16%);
-  fill: pink;
-  stroke: brown;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #AfricaPin{
   transform: translate(1%, 4%);
-  fill: brown;
-  stroke: black;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 #AsiaPin{
   transform: translate(-6%, 16%);
-  fill: cyan;
-  stroke: magenta;
+  fill: #FFF;
+  stroke: var(--color-primary);
 }
 
 #NorthAmerica.active{
-  stroke: orange;
+  stroke: #ff9900;
 }
 #CentralAmerica.active{
-  stroke: red;
+  stroke: #ffffff;
 }
 #SouthAmerica.active{
-  stroke: green;
+  stroke: #ff9900;
 }
 #Australia.active{
-  stroke: orange;
+  stroke: #fb29ff;
 }
 #Europe.active{
-  stroke: pink;
+  stroke: #fbed51;
 }
 #Africa.active{
-  stroke: brown;
+  stroke: #09aea9;
 }
 #Asia.active{
-  stroke: cyan;
+  stroke: #ff4516;
 }
 #Groelandia.active{
-    stroke: lightblue;
+    stroke: #add8e6;
 }
 </style>

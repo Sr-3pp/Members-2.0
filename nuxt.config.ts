@@ -30,8 +30,18 @@ export default defineNuxtConfig({
     "@nuxt/scripts",
     "@nuxt/test-utils",
     "@nuxt/ui",
+    "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
   ],
+
+  googleFonts: {
+    families: {
+      Raleway: [300, 400, 500, 600, 700],
+    },
+    display: "swap",
+    preload: true,
+    download: true,
+  },
 
   css: ["@/assets/css/main.css"],
 });

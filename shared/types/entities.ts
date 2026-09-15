@@ -78,6 +78,9 @@ export interface Program {
   updatedAt?: string | Date;
 }
 
+/** A program as the API returns it, with its enterprise resolved by `populate`. */
+export type ProgramWithEnterprise = Program & { enterprise?: Enterprise | null };
+
 type PersistedKeys = "_id" | "createdAt" | "updatedAt";
 
 export type CreateMemberInput = Omit<Member, PersistedKeys>;

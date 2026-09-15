@@ -1,4 +1,4 @@
-import type { TableColumn } from "@nuxt/ui";
+import type { TableColumn } from "@nuxt/ui/runtime/types/index.js";
 import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 export type PanelRecordKind = "members" | "enterprises" | "programs";

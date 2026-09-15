@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import type { Enterprise, Member, Program } from "~~/shared/types/entities";
+import { searchCategoryOptions, type MemberCategory, type SearchCategory } from "~~/shared/utils/categories";
+import type { Member, ProgramWithEnterprise } from "~~/shared/types/entities";
+import { countryOptions } from "~~/utils/formOptions";
 
-const { searchByCategory } = useMembers();
-const { getEnterprises } = useEnterprise();
-const { getPrograms } = useProgram();
+const { searchByCategory } = useEntitySearch();
+const { loading, run } = useLatestRequest();
+
+// USelectMenu reserves the empty string for "no selection" and throws on an item
+// that uses it, so the catch-all entry needs a real value of its own.
+const ALL_COUNTRIES = "all";
+const countryItems = [
+  { label: "Todos los países", value: ALL_COUNTRIES },
+  ...countryOptions,
+];
 
 const props = withDefaults(defineProps<{
-  categories: Array<{ slug: string; name: string; image?: string }>;
   members?: Member[];
-  memberCategory?: string;
+  memberCategory?: MemberCategory;
 }>(), {
   members: () => [],
   memberCategory: undefined,
@@ -18,56 +26,43 @@ const emit = defineEmits<{
   "scroll-wizzard": [];
 }>();
 
-const searchItems = [
-  ...props.categories,
-  {
-    slug: "enterprise",
-    name: "Enterprises",
-    image: "/img/categories/empresa.png",
-  },
-  { slug: "programs", name: "Programs", image: "/img/categories/programa.png" },
-].map((item) => ({
-  value: item.slug,
-  label: item.name,
-  img: item.image,
-}));
-
 const searching = ref(false);
-type ProgramWithEnterprise = Program & { enterprise?: Enterprise | null };
+const categoriesCompact = ref(false);
 
-const searchResults = ref<(Member | Enterprise | ProgramWithEnterprise)[]>([]);
-const currentCategory = ref<
-  | "enterprise"
-  | "consultor"
-  | "coach"
-  | "capacitador"
-  | "certificaciones-especiales"
-  | "program"
-  | null
->(null);
-
-const searchFor = async (value: string) => {
-  searching.value = true;
-  if (value === "enterprise") {
-    currentCategory.value = "enterprise";
-    const { data } = await getEnterprises();
-    searchResults.value = data.value as Enterprise[];
-    return;
-  }
-
-  if (value === "programs") {
-    currentCategory.value = "program";
-    const { data } = await getPrograms();
-    searchResults.value = data.value as ProgramWithEnterprise[];
-    return;
-  }
-  currentCategory.value = value as
-    | "consultor"
-    | "coach"
-    | "capacitador"
-    | "certificaciones-especiales";
-  searchResults.value = await searchByCategory(value);
+const onResultsEntered = () => {
+  categoriesCompact.value = true;
+  emit("scroll-wizzard");
 };
+const searchResults = ref<EntitySearchResult[]>([]);
+const currentCategory = ref<SearchCategory | null>(null);
+const filters = reactive({ name: "", country: ALL_COUNTRIES });
+
+const runSearch = async () => {
+  const category = currentCategory.value;
+  if (!category) return;
+
+  const results = await run(() =>
+    searchByCategory(category, {
+      name: filters.name,
+      country: filters.country === ALL_COUNTRIES ? "" : filters.country,
+    }),
+  );
+  if (results) searchResults.value = results;
+};
+
+const searchFor = async (value: SearchCategory) => {
+  searching.value = true;
+  currentCategory.value = value;
+  filters.name = "";
+  filters.country = ALL_COUNTRIES;
+  await runSearch();
+};
+
+watchDebounced(
+  [() => filters.name, () => filters.country],
+  runSearch,
+  { debounce: 300 },
+);
 
 const stopSearching = (): void => {
   searching.value = false;
@@ -77,74 +72,113 @@ watch(
   () => [props.members, props.memberCategory] as const,
   ([newMembers, memberCategory]) => {
     searchResults.value = newMembers;
-    currentCategory.value = (memberCategory || "consultor") as
-      | "consultor"
-      | "coach"
-      | "capacitador"
-      | "certificaciones-especiales";
+    currentCategory.value = memberCategory ?? "consultor";
     searching.value = true;
   },
 );
 </script>
 
 <template>
-  <UContainer>
-    <Transition name="fade-height" @after-enter="emit('scroll-wizzard')">
-      <div v-if="searching" class="min-h-[60dvh] flex flex-col gap-6">
-        <UButton
-          color="neutral"
-          variant="outline"
-          class="ml-auto"
-          @click="stopSearching"
-        >
-          Regresar
-        </UButton>
-        <ul
-          v-if="searchResults.length"
-          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
-        >
-          <li
-            v-for="instance in searchResults"
-            :key="`search-result-${instance._id}`"
-          >
-            <SearchCard
-              :category="currentCategory || 'enterprise'"
-              :member="
-                currentCategory !== 'enterprise' && currentCategory !== 'program'
-                  ? (instance as Member)
-                  : undefined
-              "
-              :enterprise="
-                currentCategory === 'enterprise'
-                  ? (instance as Enterprise)
-                  : undefined
-              "
-              :program="
-                currentCategory === 'program'
-                  ? (instance as ProgramWithEnterprise)
-                  : undefined
-              "
-            />
-          </li>
-        </ul>
-        <div v-else class="flex flex-col items-center justify-center h-full">
-          <UIcon name="tabler-error-404-off" class="size-40" />
-          <p class="text-4xl font-bold">No Members found</p>
+  <UContainer class="search-wizzard">
+    <Transition
+      name="fade-height"
+      @after-enter="onResultsEntered"
+      @after-leave="categoriesCompact = false"
+    >
+      <div v-if="searching" class="results-collapse py-4 sm:py-6">
+        <div class="min-h-0 overflow-hidden">
+          <div class="min-h-[60dvh] flex flex-col gap-6">
+            <div class="relative">
+              <h3 class="text-center text-2xl text-inverted">
+                Conoce a nuestros miembros ICCN
+              </h3>
+              <form
+                class="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6"
+                @submit.prevent="runSearch"
+              >
+                <p class="text-inverted my-auto">
+                  Busca un miembro ICCN:
+                </p>
+                <UFormField label="Nombre" :ui="invertedFormField">
+                  <UInput
+                    v-model="filters.name"
+                    variant="inverted"
+                    color="secondary"
+                    :loading="loading"
+                    placeholder="Nombre, apellido o folio"
+                    aria-label="Buscar por nombre"
+                  />
+                </UFormField>
+                <UFormField label="País" :ui="invertedFormField">
+                  <USelectMenu
+                    v-model="filters.country"
+                    variant="inverted"
+                    color="secondary"
+                    :items="countryItems"
+                    value-key="value"
+                    aria-label="Filtrar por país"
+                  />
+                </UFormField>
+              </form>
+              <UButton
+                color="secondary"
+                variant="ghost"
+                icon="lucide-chevron-left"
+                class="absolute top-0 right-0"
+                @click="stopSearching"
+              >
+                Regresar
+              </UButton>
+            </div>
+
+            <USeparator class="my-4 sm:my-8" />
+
+            <ul
+              v-if="searchResults.length"
+              class="grid grid-cols-1 sm:grid-cols-2 gap-6"
+            >
+              <li
+                v-for="instance in searchResults"
+                :key="`search-result-${instance._id}`"
+              >
+                <SearchCard
+                  :category="currentCategory || 'enterprise'"
+                  :member="
+                    currentCategory !== 'enterprise' && currentCategory !== 'programs'
+                      ? (instance as Member)
+                      : undefined
+                  "
+                  :enterprise="
+                    currentCategory === 'enterprise'
+                      ? (instance as Enterprise)
+                      : undefined
+                  "
+                  :program="
+                    currentCategory === 'programs'
+                      ? (instance as ProgramWithEnterprise)
+                      : undefined
+                  "
+                />
+              </li>
+            </ul>
+            <div v-else class="flex flex-col items-center justify-center h-full">
+              <UIcon name="tabler-error-404-off" class="size-40" />
+              <p class="text-4xl font-bold">No Members found</p>
+            </div>
+          </div>
         </div>
       </div>
     </Transition>
     <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-      <li v-for="item in searchItems" :key="`search-item-${item.value}`">
+      <li v-for="item in searchCategoryOptions" :key="`search-item-${item.value}`">
         <button
-          class="flex flex-col gap-4 items-center"
+          class="flex w-full flex-col gap-4 items-center"
           @click="searchFor(item.value)"
         >
-          <NuxtImg
-            class="transition-width duration-300"
-            :class="searching ? 'w-1/2 m-auto' : 'w-full'"
-            :src="item.img"
-            alt=""
-            aria-hidden="true"
+          <CategoryIcon
+            class="category-button-icon mx-auto"
+            :class="categoriesCompact ? 'w-1/2' : 'w-full'"
+            :category="item.value"
           />
           <span class="text-inverted">{{ item.label }}</span>
         </button>
@@ -154,23 +188,36 @@ watch(
 </template>
 
 <style scoped>
+.search-wizzard {
+  --wizard-transition-duration: 300ms;
+}
+
+.results-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.category-button-icon {
+  transition: width var(--wizard-transition-duration) ease;
+}
+
 .fade-height-enter-active,
 .fade-height-leave-active {
   transition:
-    max-height 250ms ease,
-    opacity 200ms ease;
+    grid-template-rows var(--wizard-transition-duration) ease,
+    opacity var(--wizard-transition-duration) ease;
   overflow: hidden;
 }
 
 .fade-height-enter-from,
 .fade-height-leave-to {
-  max-height: 0;
+  grid-template-rows: 0fr;
   opacity: 0;
 }
 
 .fade-height-enter-to,
 .fade-height-leave-from {
-  max-height: calc(100vh - 10rem); /* pick a safe max */
+  grid-template-rows: 1fr;
   opacity: 1;
 }
 </style>

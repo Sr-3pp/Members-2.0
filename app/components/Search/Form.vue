@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent } from "@nuxt/ui/runtime/types/form.js";
 import * as v from "valibot";
 import countries from "~~/data/countries.json";
-import categories from "~~/data/categories.json";
+import { memberCategoryOptions, memberCategorySlugs } from "~~/shared/utils/categories";
 import type { Member } from "~~/shared/types/entities";
 
 const { searchMember } = useMembers();
@@ -12,13 +12,7 @@ const countryItems = countries.map((country) => ({
   label: country.label,
 }));
 
-const categoryItems = categories.map((category) => ({
-  value: category.slug,
-  label: category.name,
-}));
-
 const countryCodes = countries.map((country) => country.code);
-const categorySlugs = categories.map((category) => category.slug);
 
 const schema = v.object({
   name: v.pipe(
@@ -27,7 +21,7 @@ const schema = v.object({
     v.maxLength(100, "Search text must be 100 characters or fewer"),
   ),
   country: v.optional(v.picklist(countryCodes, "Select a valid country")),
-  category: v.optional(v.picklist(categorySlugs, "Select a valid category")),
+  category: v.optional(v.picklist(memberCategorySlugs, "Select a valid category")),
 });
 
 export type SearchFormData = v.InferOutput<typeof schema>;
@@ -57,50 +51,45 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
 
 <template>
   <UForm
-    class="grid grid-cols-1 gap-4 w-full sm:grid-cols-2 md:grid-cols-4"
+    class="flex-row gap-4 items-center"
     :schema="schema"
     :state="state"
     @submit="handleSubmit"
   >
-    <UFormField name="name">
+    <UFormField label="Name / Last Name / Folio" name="name" class="sm:basis-1/3">
       <UInput
         v-model="state.name"
         class="w-full"
-        placeholder="Name / Last Name / Folio"
+        color="secondary"
         aria-label="Name, last name, or folio"
       />
     </UFormField>
-    <UFormField name="country">
+    <UFormField label="Select Country" name="country" class="sm:basis-1/3">
       <USelectMenu
         v-model="state.country"
-        name=""
+        name="country"
+        color="secondary"
         class="w-full"
-        placeholder="Search country"
-        aria-label="Country"
         :items="countryItems"
         value-key="value"
         :ui="{ placeholder: 'text-gray-200' }"
       />
     </UFormField>
-    <UFormField name="category">
+    <UFormField label="Select Category" name="category" class="sm:basis-1/3">
       <USelect
         v-model="state.category"
         class="w-full"
-        placeholder="Select Category"
-        :items="categoryItems"
-        aria-label="Select Category"
+        color="secondary"
+        :items="memberCategoryOptions"
         :ui="{ placeholder: 'text-gray-200' }"
       />
     </UFormField>
-    <div class="flex justify-center items-end">
-      <UButton
-        color="neutral"
-        type="submit"
-        :loading="searching"
-        class="bg-gray-100 text-gray-950 hover:bg-white"
-      >
-        Search
-      </UButton>
-    </div>
+    <UButton
+      color="secondary"
+      type="submit"
+      :loading="searching"
+    >
+      Buscar
+    </UButton>
   </UForm>
 </template>

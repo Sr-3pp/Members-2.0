@@ -1,12 +1,16 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@source "../../../shared/utils/categories.ts";
+
 .dark{
   --ui-bg: #1F313A; 
   --ui-bg-accented: #2E4F62;
 }
 
 @theme {
+  --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
+
   --color-capacitador: #92c860;
   --color-certificaciones-especiales: #505050;
   --color-coach: #f5821d;

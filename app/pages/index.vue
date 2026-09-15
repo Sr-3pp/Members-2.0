@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import categories from "~~/data/categories.json";
+import type { MemberCategory } from "~~/shared/utils/categories";
 import type { Member } from "~~/shared/types/entities";
 
 const wizard = ref<HTMLElement | null>(null);
@@ -9,9 +9,9 @@ const scrollToWizard = () => {
 };
 
 const searchMembers = ref<Member[]>([]);
-const searchCategory = ref<string>();
+const searchCategory = ref<MemberCategory>();
 
-const setMembers = (members: Member[], filters: { category?: string }) => {
+const setMembers = (members: Member[], filters: { category?: MemberCategory }) => {
   searchMembers.value = members;
   searchCategory.value = filters.category;
 };
@@ -21,19 +21,16 @@ const setMembers = (members: Member[], filters: { category?: string }) => {
   <div>
     <Parallax image="/img/parallax-bg.png">
       <UContainer class="flex flex-col justify-center gap-10">
-        <h1 class="font-bold text-xl text-center">Look for a member</h1>
-        <NuxtImg
-          class="w-full sm:w-2/3 mx-auto"
-          src="/img/main-map.png"
-          alt="main map"
-        />
+        <h1 class="font-bold text-2xl md:text-3xl text-center">
+          Ingresa los datos del miembro ICCN para iniciar la búsqueda
+        </h1>
+        <MainMap />
 
         <SearchForm @results="setMembers" />
       </UContainer>
     </Parallax>
     <section ref="wizard" class="bg-inverted">
       <SearchWizzard
-        :categories="categories"
         :members="searchMembers"
         :member-category="searchCategory"
         @scroll-wizzard="scrollToWizard"

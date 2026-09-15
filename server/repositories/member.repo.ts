@@ -1,6 +1,10 @@
 import { connectDb } from "../db/mongoose";
 import MemberModel from "../models/Member";
-import { escapeRegex, type SearchFilters } from "../utils/search";
+import {
+  countryCodeFilter,
+  textSearchConditions,
+  type SearchFilters,
+} from "../utils/search";
 import type {
   CreateMemberInput,
   UpdateMemberInput,
@@ -22,16 +26,11 @@ export async function searchMembers({
   const filter: Record<string, unknown> = {};
 
   if (status) filter.status = status;
-  if (country) filter["country.code"] = country;
+  if (country) filter["country.code"] = countryCodeFilter(country);
   if (category) filter.categories = category;
 
   if (query) {
-    const escapedQuery = escapeRegex(query);
-    filter.$or = [
-      { name: { $regex: escapedQuery, $options: "i" } },
-      { last_name: { $regex: escapedQuery, $options: "i" } },
-      { folio: { $regex: escapedQuery, $options: "i" } },
-    ];
+    filter.$or = textSearchConditions(query, ["name", "last_name", "folio"]);
   }
 
   return MemberModel.find(filter).limit(limit).lean();

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui";
+import type { TableColumn } from "@nuxt/ui/runtime/types/index.js";
+import { categoryDefinitions, isMemberCategory } from "~~/shared/utils/categories";
 import type { Enterprise, Member, Program } from "~~/shared/types/entities";
 
 const { id: entity_params, entity: entity_param } = useRoute().params;
@@ -57,6 +58,13 @@ if (entityType.value === "member") {
   const { data } = await getProgram(id as string);
   entity.value = data.value ?? null;
 }
+
+const displayContinent = computed(() => {
+  const source = isProgram.value
+    ? programEnterprise.value
+    : entity.value as Member | Enterprise | null;
+  return source?.country?.zone ?? "";
+});
 
 const displayImage = computed(() => {
   if (!entity.value) return "";
@@ -136,20 +144,12 @@ const displayName = computed(() => {
             v-for="category in (entity as Member).categories"
             :key="`member_cat-${category}`"
           >
-            <NuxtImg
-              class="size-10"
-              :src="`/img/categories/${category}.png`"
-              :alt="`${category} image`"
-            />
-            <span class="capitalize">{{ category.replace(/-/g, " ") }}</span>
+            <CategoryIcon class="size-10 !p-1" v-if="isMemberCategory(category)" :category="category" />
+            <span class="capitalize">{{ isMemberCategory(category) ? categoryDefinitions[category].label : category }}</span>
           </li>
         </ul>
         <p v-else-if="isEnterprise" class="flex items-center gap-2">
-          <NuxtImg
-            class="size-10"
-            src="/img/categories/empresa.png"
-            alt="empresa image"
-          />
+          <CategoryIcon class="size-10 !p-1" category="enterprise" />
           <span class="capitalize">empresa</span>
         </p>
         <p v-else-if="isProgram" class="flex items-center gap-2 text-lg">
@@ -158,12 +158,7 @@ const displayName = computed(() => {
           <span class="text-sm text-gray-500">{{ (entity as Program).length }} días</span>
         </p>
         <hr />
-        <Map v-if="isMember || isEnterprise" :withPins="true" :continent="(entity as any).country?.zone " />
-        <NuxtImg
-          v-else-if="isProgram && programEnterprise?.country?.zone"
-          :src="`/img/zones/${programEnterprise.country.zone.toLowerCase().replace(/ /g, '_')}.png`"
-          :alt="`${programEnterprise.country.zone} zone`"
-        />
+        <Map :with-pins="true" :continent="displayContinent" />
       </div>
     </div>
 

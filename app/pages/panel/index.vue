@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsItem } from "@nuxt/ui";
+import type { TabsItem } from "@nuxt/ui/runtime/types/index.js";
 
 const tabs = [
   { label: "Members", value: "members", slot: "members" },

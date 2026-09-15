@@ -1,11 +1,5 @@
 import type { Member } from "~~/shared/types/entities";
 
-export interface SearchMemberFilters {
-  name: string;
-  category?: string;
-  country?: string;
-}
-
 export const useMembers = () => {
   const getMembers = () =>
     useAsyncData("members", () => $fetch<Member[]>("/api/members"));
@@ -20,23 +14,13 @@ export const useMembers = () => {
       $fetch<Member>(`/api/members/${id}`),
     );
 
-  const searchByCategory = (category: string) =>
-    $fetch<Member[]>(`/api/members/search/${category}`);
-
-  const searchMember = (filters: SearchMemberFilters) =>
-    $fetch<Member[]>("/api/members/search", {
-      query: {
-        name: filters.name || undefined,
-        category: filters.category,
-        country: filters.country,
-      },
-    });
+  const searchMember = (filters: EntitySearchFilters) =>
+    fetchEntitySearch<Member>("/api/members/search", filters);
 
   return {
     getMember,
     getMembers,
     deleteMember,
-    searchByCategory,
     searchMember,
   };
 };

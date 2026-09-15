@@ -1,6 +1,10 @@
 import { connectDb } from "../db/mongoose";
 import EnterpriseModel from "../models/Enterprise";
-import { escapeRegex, type SearchFilters } from "../utils/search";
+import {
+  countryCodeFilter,
+  textSearchConditions,
+  type SearchFilters,
+} from "../utils/search";
 import type {
   CreateEnterpriseInput,
   UpdateEnterpriseInput,
@@ -42,14 +46,10 @@ export async function searchEnterprises({
   const filter: Record<string, unknown> = {};
 
   if (status) filter.status = status;
-  if (country) filter["country.code"] = country;
+  if (country) filter["country.code"] = countryCodeFilter(country);
 
   if (query) {
-    const escapedQuery = escapeRegex(query);
-    filter.$or = [
-      { name: { $regex: escapedQuery, $options: "i" } },
-      { folio: { $regex: escapedQuery, $options: "i" } },
-    ];
+    filter.$or = textSearchConditions(query, ["name", "folio"]);
   }
 
   return EnterpriseModel.find(filter).limit(limit).lean();

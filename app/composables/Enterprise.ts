@@ -16,9 +16,13 @@ export const useEnterprise = () => {
       $fetch<Enterprise>(`/api/enterprises/${id}`),
     );
 
+  const searchEnterprise = (filters: EntitySearchFilters) =>
+    fetchEntitySearch<Enterprise>("/api/enterprises/search", filters);
+
   return {
     getEnterprises,
     getEnterprise,
     deleteEnterprise,
+    searchEnterprise,
   };
 };
