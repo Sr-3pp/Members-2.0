@@ -173,7 +173,7 @@ const displayRingColor = computed(() => {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-6 md:grid-cols-12 mt-8 sm:mt-0">
+    <div class="grid grid-cols-1 sm:grid-cols-6 md:grid-cols-12 mt-8 sm:mt-0 gap-10">
       <div class="col-span-1 sm:col-span-6 md:col-span-8 flex flex-col gap-8">
         <article class="flex flex-col gap-4">
           <h3 class="text-xl font-bold">

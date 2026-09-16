@@ -111,9 +111,6 @@ async function signOut() {
                   Cerrar sesión
                 </UButton>
               </li>
-              <li v-else>
-                <NuxtLink to="/login" class="block py-4 text-lg">Iniciar sesión</NuxtLink>
-              </li>
             </ul>
           </template>
         </USlideover>

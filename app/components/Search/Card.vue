@@ -90,14 +90,14 @@ const detailPath = computed(() => {
           class="flex justify-center items-center absolute bottom-full right-0 gap-2 h-10 px-6 py-4"
           :class="categoryDefinitions[category].background"
         >
-          <figcaption class="capitalize">
+          <figcaption class="capitalize font-bold">
             {{ categoryDefinitions[category].label }}
           </figcaption>
           <CategoryIcon class="size-8 !p-1" :category="category" />
         </figure>
         <figure class="relative flex flex-col items-center w-2/8 -mt-16 ml-6 mb-6">
           <NuxtImg
-            class="p-2 bg-white rounded-full"
+            class="p-2 bg-white rounded-full w-full aspect-square"
             :src="displayPicture"
             :alt="`picture of ${displayName}`"
           />
@@ -111,7 +111,7 @@ const detailPath = computed(() => {
           </span>
         </figure>
   
-        <div class="flex flex-col gap-2 ml-auto text-right justify-center px-6">
+        <div class="flex flex-col gap-2 ml-auto text-right justify-center p-6">
           <h3 class="font-bold text-lg">
             {{ displayName }}
           </h3>

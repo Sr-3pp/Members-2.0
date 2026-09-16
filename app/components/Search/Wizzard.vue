@@ -169,7 +169,7 @@ watch(
         </div>
       </div>
     </Transition>
-    <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+    <ul class="grid grid-cols-3 md:grid-cols-6 gap-6">
       <li v-for="item in searchCategoryOptions" :key="`search-item-${item.value}`">
         <button
           class="flex w-full flex-col gap-4 items-center cursor-pointer transition-all duration-300 hover:transformY-1 hover:scale-105"
