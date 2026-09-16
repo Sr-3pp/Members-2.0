@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Propuesta de migración — Directorio de Miembros ICCN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --navy: #0f1c2e;
+    --navy-2: #182a44;
+    --teal: #46c1b6;
+    --blue: #00aeef;
+    --orange: #f58624;
+    --green: #95ca65;
+    --pink: #ea527d;
+    --ink: #1d2733;
+    --muted: #5d6b7c;
+    --line: #dfe5ec;
+    --paper: #ffffff;
+    --soft: #f4f7fa;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink);
+    font-family: "Raleway", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; }
+  .page { width: 210mm; min-height: 297mm; padding: 18mm 18mm 16mm; page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: auto; }
+  h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 20pt; color: var(--navy); margin-bottom: 4mm; }
+  h3 { font-size: 12pt; color: var(--navy); margin: 6mm 0 2mm; }
+  p { margin: 0 0 3mm; }
+  .eyebrow { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 2mm; }
+  .lead { font-size: 11.5pt; color: var(--ink); }
+  .muted { color: var(--muted); }
+  ul { margin: 0 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 1.2mm; }
+  .footer { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between;
+    font-size: 8pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 2.5mm; }
+
+  /* Cover */
+  .cover { background: var(--navy); color: #fff; padding: 0; display: flex; flex-direction: column; }
+  .cover-top { padding: 20mm 18mm 0; flex: 1; }
+  .cover-logo { height: 22mm; }
+  .cover-title { margin-top: 42mm; }
+  .cover-title .eyebrow { color: var(--teal); }
+  .cover-title h1 { font-size: 34pt; line-height: 1.1; font-weight: 800; }
+  .cover-title h1 span { color: var(--teal); }
+  .cover-title p { margin-top: 6mm; font-size: 13pt; color: #c9d3df; max-width: 140mm; font-weight: 300; }
+  .cover-bottom { padding: 10mm 18mm 16mm; border-top: 1px solid rgba(255,255,255,0.15); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8mm; }
+  .cover-bottom .k { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.12em; color: #8fa1b7; margin-bottom: 1.5mm; }
+  .cover-bottom .v { font-size: 11pt; font-weight: 600; }
+  .stripe { height: 3mm; background: linear-gradient(90deg, var(--teal), var(--blue), var(--green), var(--orange), var(--pink)); }
+
+  /* Cards */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; margin: 5mm 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin: 4mm 0; }
+  .card { background: var(--soft); border-radius: 3mm; padding: 5mm; border-top: 3px solid var(--teal); }
+  .card.blue { border-color: var(--blue); }
+  .card.orange { border-color: var(--orange); }
+  .card.green { border-color: var(--green); }
+  .card.pink { border-color: var(--pink); }
+  .card h3 { margin: 0 0 2mm; font-size: 11.5pt; }
+  .card p { font-size: 9.5pt; margin: 0; color: #34404d; }
+  .card ul { font-size: 9.5pt; margin: 0; }
+  .card ul li { color: #34404d; }
+
+  .stat { text-align: center; padding: 4mm 3mm; }
+  .stat .n { font-size: 24pt; font-weight: 800; color: var(--navy); line-height: 1; }
+  .stat .l { font-size: 8.5pt; color: var(--muted); margin-top: 1.5mm; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .alert { border-left: 4px solid var(--orange); background: #fff7f0; padding: 4mm 5mm; border-radius: 0 3mm 3mm 0; margin: 4mm 0; }
+  .alert h3 { margin: 0 0 2mm; color: #9a4b00; font-size: 11pt; }
+  .alert p, .alert li { font-size: 9.5pt; color: #4a3728; }
+  .alert code { font-size: 8.5pt; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; background: rgba(15,28,46,0.06); padding: 0 1mm; border-radius: 1mm; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 8.6pt; line-height: 1.35; }
+  th, td { padding: 1.7mm 3mm; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  th { background: var(--navy); color: #fff; font-weight: 600; font-size: 8.5pt; letter-spacing: 0.04em; }
+  th:first-child { border-radius: 2mm 0 0 0; } th:last-child { border-radius: 0 2mm 0 0; }
+  td:first-child { font-weight: 600; color: var(--navy); width: 30mm; }
+  td.old { color: #7a4a1c; }
+  td.new { color: #0f5e57; }
+  tr:nth-child(even) td { background: #fafbfd; }
+
+  /* Timeline / steps */
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 3mm 0; }
+  .steps li { counter-increment: s; position: relative; padding-left: 11mm; margin-bottom: 2.2mm; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 7.5mm; height: 7.5mm; border-radius: 50%;
+    background: var(--teal); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 10pt; }
+  .steps li strong { display: block; color: var(--navy); }
+
+  /* Price */
+  .price { background: var(--navy); color: #fff; border-radius: 3mm; padding: 5.5mm 8mm; display: grid; grid-template-columns: 1fr auto; gap: 8mm; align-items: center; margin: 4mm 0; }
+  .price .amount { font-size: 30pt; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+  .price .amount small { font-size: 11pt; font-weight: 600; color: var(--teal); margin-left: 2mm; }
+  .price ul { margin: 2mm 0 0; font-size: 9.5pt; color: #c9d3df; }
+  .price p { color: #c9d3df; font-size: 9.5pt; margin: 0; }
+  .terms { font-size: 8.8pt; color: var(--muted); margin-bottom: 1mm; }
+  .check li { list-style: none; position: relative; padding-left: 5.5mm; }
+  .check li::before { content: ""; position: absolute; left: 0; top: 1.6mm; width: 3.2mm; height: 3.2mm; border-radius: 50%; background: var(--teal); }
+  .two-col { columns: 2; column-gap: 8mm; }
+  .two-col ul { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="page cover">
+  <div class="cover-top">
+    <img class="cover-logo" src="data:image/png;base64,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" alt="ICCN">
+    <div class="cover-title">
+      <div class="eyebrow">Propuesta técnica y comercial</div>
+      <h1>Migración del Directorio<br>de Miembros a<br><span>Nuxt + MongoDB</span></h1>
+      <p>Una plataforma moderna, segura y mantenible para reemplazar la versión actual construida sobre Laravel 5.5 y MySQL.</p>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div><div class="k">Preparado para</div><div class="v">ICCN — International Coaching &amp; Consulting Network</div></div>
+    <div><div class="k">Preparado por</div><div class="v">Martin Ruiz</div></div>
+    <div><div class="k">Fecha</div><div class="v">Septiembre 2026</div></div>
+  </div>
+  <div class="stripe"></div>
+</section>
+
+<!-- ============ RESUMEN EJECUTIVO ============ -->
+<section class="page">
+  <div class="eyebrow">01 · Resumen ejecutivo</div>
+  <h2>Por qué migrar ahora</h2>
+  <p class="lead">El directorio de miembros funciona hoy sobre tecnología que dejó de recibir soporte hace años. Cada componente de la pila actual (Laravel 5.5, PHP 7, Vue 2, Node 12) está fuera de mantenimiento, lo que significa que las vulnerabilidades conocidas ya no se corrigen y que encontrar quién le dé mantenimiento es cada vez más difícil y costoso.</p>
+  <p>Esta propuesta cubre la reconstrucción completa del directorio sobre <strong>Nuxt 4</strong> con base de datos <strong>MongoDB</strong>, conservando la funcionalidad que ya conocen sus miembros (búsqueda por categoría, país y nombre; perfiles de consultores, coaches, capacitadores, empresas y programas; panel de administración) y sumando seguridad, velocidad y una base sólida para crecer.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>Una sola tecnología</h3>
+      <p>Todo el sistema (interfaz, API y lógica de negocio) vive en un solo proyecto Nuxt escrito en TypeScript. Sin PHP, Apache ni Composer. Menos piezas, menos fallas, menos costo de operación.</p>
+    </div>
+    <div class="card blue">
+      <h3>MongoDB en lugar de MySQL</h3>
+      <p>Un perfil de miembro es un documento completo, no doce tablas unidas. Las consultas son más simples y rápidas, y agregar campos (habilidades, idiomas, redes) no requiere rediseñar la base de datos.</p>
+    </div>
+    <div class="card orange">
+      <h3>Seguridad de verdad</h3>
+      <p>Autenticación con sesiones revocables, límite de intentos de acceso, validación de datos en cliente y servidor, y cada operación de escritura protegida. La versión actual expone rutas para borrar miembros sin ninguna autenticación.</p>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card stat" style="border-color: var(--pink)"><div class="n">8</div><div class="l">rutas de escritura públicas<br>en la versión actual</div></div>
+    <div class="card stat" style="border-color: var(--green)"><div class="n">58</div><div class="l">pruebas automatizadas<br>en la nueva versión</div></div>
+    <div class="card stat" style="border-color: var(--blue)"><div class="n">1</div><div class="l">proceso de servidor<br>en lugar de cuatro</div></div>
+  </div>
+
+  <h3>Qué obtiene la ICCN</h3>
+  <ul class="check">
+    <li>Directorio público con búsqueda rápida por nombre, país y categoría, insensible a acentos y mayúsculas.</li>
+    <li>Perfiles de miembros, empresas y programas con mapa, bandera, habilidades, idiomas y redes sociales.</li>
+    <li>Panel de administración protegido para crear, editar, activar y eliminar registros y subir imágenes.</li>
+    <li>Código moderno, documentado y con pruebas automáticas, listo para que cualquier equipo lo continúe.</li>
+    <li>Inversión única de <strong>$15,000 MXN</strong> por la migración completa.</li>
+  </ul>
+
+  <div class="footer"><span>Propuesta de migración · Directorio de Miembros ICCN</span><span>2</span></div>
+</section>
+
+<!-- ============ DIAGNÓSTICO ============ -->
+<section class="page">
+  <div class="eyebrow">02 · Diagnóstico de la plataforma actual</div>
+  <h2>Lo que encontramos en la versión Laravel</h2>
+  <p>Revisamos el código fuente completo de la versión en producción. Estos son los hallazgos que motivan la migración, ordenados por impacto.</p>
+
+  <div class="alert">
+    <h3>Riesgo crítico: operaciones destructivas sin autenticación</h3>
+    <p>Las rutas para crear, desactivar y <strong>eliminar</strong> miembros, empresas y programas están fuera del grupo protegido del panel. Cualquier persona que conozca la dirección puede borrar un miembro con una simple visita a <code>/delete-user/{id}</code>, sin iniciar sesión. Lo mismo aplica a <code>/delete-program</code>, <code>/status-user</code>, <code>/new-membrer</code>, <code>/new-empresa</code>, <code>/new-programa</code> y <code>/upload-pic</code>.</p>
+    <p>Además, los formularios de alta no validan ningún dato de entrada, la subida de archivos acepta cualquier tipo de archivo y la configuración de ejemplo deja el modo de depuración activado, lo que expone detalles internos ante cualquier error.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card orange">
+      <h3>Tecnología sin soporte</h3>
+      <ul>
+        <li><strong>Laravel 5.5</strong> (2017): sin correcciones de seguridad desde agosto de 2020.</li>
+        <li><strong>PHP 7.x</strong>: fin de vida en noviembre de 2022.</li>
+        <li><strong>Vue 2</strong>: fin de vida el 31 de diciembre de 2023.</li>
+        <li><strong>Node 12</strong> en el despliegue: fin de vida en abril de 2022.</li>
+        <li>jQuery, Bootstrap 4, node-sass y Laravel Mix 1: todos descontinuados.</li>
+      </ul>
+    </div>
+    <div class="card pink">
+      <h3>Búsqueda frágil y lenta</h3>
+      <ul>
+        <li>La búsqueda principal es una sola función de más de 400 líneas con bucles anidados.</li>
+        <li>Carga todas las relaciones categoría-miembro en memoria en cada búsqueda.</li>
+        <li>Cada combinación de filtros (nombre, país, categoría) está programada a mano y duplicada.</li>
+        <li>Distingue acentos: buscar "Jose" no encuentra a "José".</li>
+      </ul>
+    </div>
+    <div class="card blue">
+      <h3>Modelo de datos rígido</h3>
+      <ul>
+        <li>Un perfil se reparte en 12 tablas MySQL (usuarios, perfiles, empresas, categorías, valoraciones, países, idiomas, zonas…).</li>
+        <li>Cada perfil admite como máximo <strong>5 habilidades</strong>, en columnas fijas.</li>
+        <li>Los idiomas se guardan como texto JSON dentro de una columna SQL: lo peor de ambos mundos.</li>
+        <li>Mostrar un perfil requiere unir 5 o 6 tablas.</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Sin red de seguridad</h3>
+      <ul>
+        <li>Solo existen las 2 pruebas de ejemplo que Laravel incluye por defecto.</li>
+        <li>Sin tipado: los errores se descubren en producción.</li>
+        <li>Último cambio en el código: diciembre de 2023.</li>
+        <li>Despliegue manual por SSH con Node 12.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer"><span>Propuesta de migración · Directorio de Miembros ICCN</span><span>3</span></div>
+</section>
+
+<!-- ============ NUEVA PLATAFORMA ============ -->
+<section class="page">
+  <div class="eyebrow">03 · La nueva plataforma</div>
+  <h2>Cómo está construida la versión Nuxt</h2>
+  <p>La nueva versión ya está desarrollada y en funcionamiento. Estas son sus bases técnicas y lo que significan para la ICCN.</p>
+
+  <h3>Solo Nuxt: un proyecto, un lenguaje, un servidor</h3>
+  <p>Nuxt 4 con Vue 3.5 y TypeScript 5.9 cubre la interfaz, el renderizado en servidor y la API (23 endpoints sobre Nitro). Se elimina la capa PHP, Apache y Composer. El servidor corre como un único proceso Node bajo pm2, con toda la configuración en variables de entorno. Interfaz construida con Nuxt UI 4 y Tailwind 4: responsiva, con modo oscuro y accesibilidad verificada por el módulo <code>@nuxt/a11y</code>.</p>
+
+  <h3>MongoDB: la base de datos correcta para un directorio</h3>
+  <p>Un directorio de perfiles es, por naturaleza, una colección de documentos: cada miembro tiene su país, sus habilidades, sus idiomas y sus redes. En MongoDB ese perfil es <strong>un solo documento</strong> que se lee con una consulta, en lugar de unir seis tablas. Las tres colecciones (miembros, empresas, programas) tienen índices en folio, correo, rango y estado. Agregar un campo nuevo no rompe nada. El límite de 5 habilidades desaparece.</p>
+
+  <div class="grid-2">
+    <div class="card orange">
+      <h3>Seguridad</h3>
+      <ul>
+        <li>Autenticación con <strong>Better Auth</strong>: sesiones de 8 horas guardadas en MongoDB y revocadas al cerrar sesión.</li>
+        <li>Máximo 10 intentos de acceso por IP cada 15 minutos.</li>
+        <li>Registro público deshabilitado; solo administradores obtienen sesión. Contraseñas de 12 caracteres mínimo.</li>
+        <li><strong>Todas</strong> las operaciones de escritura (crear, editar, borrar, subir) exigen sesión de administrador y verificación de origen contra CSRF.</li>
+        <li>Validación de datos con Zod y Valibot en cliente y servidor.</li>
+        <li>Subidas limitadas a imágenes, con nombre aleatorio para evitar sobreescrituras.</li>
+        <li>Búsqueda con expresiones escapadas: sin inyección posible.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Experiencia de uso</h3>
+      <ul>
+        <li>Búsqueda en vivo por nombre, país y categoría, <strong>insensible a acentos y mayúsculas</strong>, con resultados mientras se escribe.</li>
+        <li>Renderizado en servidor (SSR): carga inicial rápida y perfiles indexables por Google.</li>
+        <li>Imágenes optimizadas automáticamente con Nuxt Image.</li>
+        <li>Banderas de país descargadas una vez y guardadas en disco.</li>
+        <li>Mapa interactivo con ubicación del miembro.</li>
+        <li>Panel de administración con pestañas para miembros, empresas y programas.</li>
+      </ul>
+    </div>
+  </div>
+
+
+  <div class="footer"><span>Propuesta de migración · Directorio de Miembros ICCN</span><span>4</span></div>
+</section>
+
+<!-- ============ COMPARATIVA ============ -->
+<section class="page">
+  <div class="eyebrow">04 · Comparativa</div>
+  <h2>Antes y después, punto por punto</h2>
+  <table>
+    <thead><tr><th>Aspecto</th><th>Versión actual (Laravel)</th><th>Nueva versión (Nuxt)</th></tr></thead>
+    <tbody>
+      <tr><td>Framework</td><td class="old">Laravel 5.5 (2017), sin soporte desde 2020</td><td class="new">Nuxt 4.2 (2025), soporte activo</td></tr>
+      <tr><td>Lenguajes</td><td class="old">PHP 7 en servidor, JavaScript sin tipos en cliente</td><td class="new">TypeScript de extremo a extremo</td></tr>
+      <tr><td>Interfaz</td><td class="old">Vue 2 (fin de vida 2023), jQuery, Bootstrap 4</td><td class="new">Vue 3.5, Nuxt UI 4, Tailwind 4</td></tr>
+      <tr><td>Base de datos</td><td class="old">MySQL, 12 tablas relacionadas</td><td class="new">MongoDB, 3 colecciones de documentos indexadas</td></tr>
+      <tr><td>Autenticación</td><td class="old">Sesión PHP básica, sin límite de intentos</td><td class="new">Better Auth: sesiones revocables, límite de intentos, solo admins</td></tr>
+      <tr><td>Rutas de escritura</td><td class="old">8 rutas públicas sin autenticación (incluye borrar)</td><td class="new">Todas requieren admin y verificación de origen</td></tr>
+      <tr><td>Validación</td><td class="old">Ninguna en los formularios de alta</td><td class="new">Zod y Valibot en cliente y servidor</td></tr>
+      <tr><td>Subida de imágenes</td><td class="old">Acepta cualquier archivo</td><td class="new">Solo imágenes, nombre aleatorio</td></tr>
+      <tr><td>Búsqueda</td><td class="old">400+ líneas, bucles anidados, distingue acentos</td><td class="new">Consulta indexada, insensible a acentos y mayúsculas, en vivo</td></tr>
+      <tr><td>Habilidades por perfil</td><td class="old">Máximo 5, en columnas fijas</td><td class="new">Sin límite</td></tr>
+      <tr><td>Pruebas</td><td class="old">2 pruebas de ejemplo</td><td class="new">58 pruebas en 15 archivos</td></tr>
+      <tr><td>Rendimiento / SEO</td><td class="old">Render en el navegador, sin optimización de imágenes</td><td class="new">SSR, imágenes optimizadas, banderas en caché</td></tr>
+      <tr><td>Accesibilidad</td><td class="old">No verificada</td><td class="new">Auditada con @nuxt/a11y</td></tr>
+      <tr><td>Servidor</td><td class="old">Apache + PHP + Composer + Node 12</td><td class="new">Un proceso Node (pm2), configuración por entorno</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:5mm">Qué significa esto para la operación diaria</h3>
+  <div class="two-col">
+    <ul class="check">
+      <li><strong>Menos riesgo:</strong> nadie externo puede alterar o borrar el directorio.</li>
+      <li><strong>Menos costo de hosting:</strong> un solo proceso Node reemplaza a Apache, PHP y MySQL.</li>
+      <li><strong>Menos dependencia:</strong> TypeScript y Nuxt son de los perfiles más disponibles del mercado.</li>
+    </ul>
+    <ul class="check">
+      <li><strong>Más velocidad:</strong> perfiles en una consulta, búsqueda con índices.</li>
+      <li><strong>Más confianza en los cambios:</strong> las pruebas detectan regresiones antes de publicar.</li>
+      <li><strong>Más margen para crecer:</strong> agregar campos o categorías no exige rediseñar la base.</li>
+    </ul>
+  </div>
+
+  <div class="footer"><span>Propuesta de migración · Directorio de Miembros ICCN</span><span>5</span></div>
+</section>
+
+<!-- ============ ALCANCE E INVERSIÓN ============ -->
+<section class="page">
+  <div class="eyebrow">05 · Alcance e inversión</div>
+  <h2>Qué incluye la migración</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Entregables</h3>
+      <ul class="check">
+        <li>Aplicación Nuxt 4 completa: sitio público, API y panel de administración.</li>
+        <li>Base de datos MongoDB con colecciones de miembros, empresas y programas.</li>
+        <li>Migración de los registros actuales de MySQL a MongoDB.</li>
+        <li>Autenticación de administradores y script para crear la cuenta inicial.</li>
+        <li>Suite de 58 pruebas automatizadas y configuración de linting.</li>
+        <li>Documentación de instalación, variables de entorno y operación.</li>
+        <li>Despliegue en producción y puesta en marcha.</li>
+      </ul>
+    </div>
+    <div class="card blue">
+      <h3>Funcionalidad conservada y mejorada</h3>
+      <ul class="check">
+        <li>Búsqueda por categoría (consultor, coach, capacitador, certificaciones especiales, empresas, programas).</li>
+        <li>Filtros por nombre y país, ahora en vivo e insensibles a acentos.</li>
+        <li>Perfiles con foto, bandera, mapa, habilidades, idiomas, educación y redes.</li>
+        <li>Programas con empresa responsable y participantes.</li>
+        <li>Alta, edición, cambio de estado y eliminación desde el panel.</li>
+        <li>Enlaces al sitio principal de la ICCN desde la navegación.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="price">
+    <div>
+      <div class="eyebrow" style="color: var(--teal)">Inversión total</div>
+      <div class="amount">$15,000 <small>MXN</small></div>
+      <p style="margin-top: 3mm">Pago único por la migración completa: desarrollo, migración de datos, pruebas, documentación y despliegue.</p>
+    </div>
+    <div>
+      <ul class="check">
+        <li>50% al aceptar la propuesta</li>
+        <li>50% al publicar en producción</li>
+        <li>Vigencia de la propuesta: 30 días</li>
+      </ul>
+    </div>
+  </div>
+  <p class="terms">No incluye costos de infraestructura de terceros (servidor, dominio, plan de MongoDB Atlas), que se contratan a nombre de la ICCN. El soporte posterior a la puesta en marcha puede acordarse por separado.</p>
+
+  <h3 style="margin-top:4mm">Siguientes pasos</h3>
+  <ol class="steps">
+    <li><strong>Aceptación de la propuesta</strong>Confirmación por correo y primer pago.</li>
+    <li><strong>Migración de datos</strong>Exportación de la base MySQL actual, transformación a documentos MongoDB y revisión conjunta de los registros.</li>
+    <li><strong>Puesta en producción</strong>Despliegue, creación de la cuenta de administrador, apagado de la versión Laravel y segundo pago.</li>
+  </ol>
+
+  <div class="footer"><span>Propuesta de migración · Directorio de Miembros ICCN</span><span>6</span></div>
+</section>
+
+</body>
+</html>

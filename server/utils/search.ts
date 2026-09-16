@@ -1,22 +1,47 @@
 import type { H3Event } from "h3";
-import { optionalQueryString, queryLimit } from "./request";
+import type { SearchPage } from "~~/shared/types/search";
+import { optionalQueryString, queryInteger } from "./request";
 
+/** Filters as they arrive from a caller; the page window is optional here. */
 export interface SearchFilters {
   query?: string;
   country?: string;
   category?: string;
   status?: string;
+  skip?: number;
   limit?: number;
 }
 
-export function normalizeSearchFilters(filters: SearchFilters): SearchFilters {
+/** Filters after normalization: trimmed, and with a page window inside the server bounds. */
+export type SearchQuery = SearchFilters & { skip: number; limit: number };
+
+export const DEFAULT_PAGE_LIMIT = 20;
+export const MAX_PAGE_LIMIT = 100;
+
+export function normalizeSearchFilters(filters: SearchFilters): SearchQuery {
   return {
     query: filters.query?.trim() || undefined,
     country: filters.country?.trim().toUpperCase() || undefined,
     category: filters.category?.trim() || undefined,
     status: filters.status?.trim() || undefined,
-    limit: Math.min(Math.max(Math.trunc(filters.limit ?? 20), 1), 100),
+    skip: Math.max(filters.skip ?? 0, 0),
+    limit: Math.min(Math.max(filters.limit ?? DEFAULT_PAGE_LIMIT, 1), MAX_PAGE_LIMIT),
   };
+}
+
+/**
+ * Runs a search as one page: the rows of the requested window alongside the
+ * total match count, which is what a "load more" control needs to know when to
+ * stop. Both queries run concurrently. `find` must apply a fixed sort, since
+ * skip/limit windows only line up between requests over a stable order.
+ */
+export async function searchPage<T>(
+  find: () => Promise<T[]>,
+  count: () => Promise<number>,
+  { skip, limit }: Pick<SearchQuery, "skip" | "limit">,
+): Promise<SearchPage<T>> {
+  const [items, total] = await Promise.all([find(), count()]);
+  return { items, total, skip, limit };
 }
 
 export function escapeRegex(value: string) {
@@ -40,7 +65,8 @@ export function searchFiltersFromQuery(event: H3Event): SearchFilters {
     country: optionalQueryString(query.country),
     category: optionalQueryString(query.category),
     status: optionalQueryString(query.status),
-    limit: queryLimit(query.limit),
+    skip: queryInteger(query.skip, 0),
+    limit: queryInteger(query.limit, DEFAULT_PAGE_LIMIT),
   };
 }
 

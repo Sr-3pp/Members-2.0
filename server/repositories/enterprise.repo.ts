@@ -2,8 +2,9 @@ import { connectDb } from "../db/mongoose";
 import EnterpriseModel from "../models/Enterprise";
 import {
   countryCodeFilter,
+  searchPage,
   textSearchConditions,
-  type SearchFilters,
+  type SearchQuery,
 } from "../utils/search";
 import type {
   CreateEnterpriseInput,
@@ -36,12 +37,15 @@ export async function updateEnterprise(id: string, data: UpdateEnterpriseInput) 
   return EnterpriseModel.findByIdAndUpdate(id, data, { new: true }).lean();
 }
 
+const ENTERPRISE_SORT = { name: 1, _id: 1 } as const;
+
 export async function searchEnterprises({
   query,
   country,
   status,
-  limit = 20,
-}: SearchFilters) {
+  skip,
+  limit,
+}: SearchQuery) {
   await connectDb();
   const filter: Record<string, unknown> = {};
 
@@ -52,5 +56,9 @@ export async function searchEnterprises({
     filter.$or = textSearchConditions(query, ["name", "folio"]);
   }
 
-  return EnterpriseModel.find(filter).limit(limit).lean();
+  return searchPage(
+    () => EnterpriseModel.find(filter).sort(ENTERPRISE_SORT).skip(skip).limit(limit).lean(),
+    () => EnterpriseModel.countDocuments(filter),
+    { skip, limit },
+  );
 }

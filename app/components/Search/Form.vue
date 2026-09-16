@@ -2,9 +2,7 @@
 import type { FormSubmitEvent } from "@nuxt/ui/runtime/types/form.js";
 import * as v from "valibot";
 import { memberCategoryOptions, memberCategorySlugs } from "~~/shared/utils/categories";
-import type { Member } from "~~/shared/types/entities";
 
-const { searchMember } = useMembers();
 const { options: countryItems, loading: loadingCountries, find: findCountry } = useCountries();
 
 const schema = v.object({
@@ -17,7 +15,7 @@ const schema = v.object({
   category: v.optional(v.picklist(memberCategorySlugs, "Select a valid category")),
 });
 
-export type SearchFormData = v.InferOutput<typeof schema>;
+type SearchFormData = v.InferOutput<typeof schema>;
 
 const state = reactive<v.InferInput<typeof schema>>({
   name: "",
@@ -25,20 +23,14 @@ const state = reactive<v.InferInput<typeof schema>>({
   category: undefined,
 });
 
+// Searching happens in the wizard below, which pages the results; the form only
+// reports what to search for.
 const emit = defineEmits<{
-  results: [members: Member[], filters: SearchFormData];
+  search: [filters: EntitySearchRequest];
 }>();
 
-const searching = ref(false);
-
-const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
-  searching.value = true;
-  try {
-    const results = await searchMember(event.data);
-    emit("results", results, event.data);
-  } finally {
-    searching.value = false;
-  }
+const handleSubmit = (event: FormSubmitEvent<SearchFormData>) => {
+  emit("search", event.data);
 };
 </script>
 
@@ -81,7 +73,6 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
     <UButton
       color="secondary"
       type="submit"
-      :loading="searching"
     >
       Buscar
     </UButton>

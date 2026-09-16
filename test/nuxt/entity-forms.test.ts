@@ -7,6 +7,13 @@ import ProgramForm from "../../app/components/Program/Form.vue";
 mockNuxtImport("useToast", () => () => ({ add: vi.fn() }));
 afterEach(() => vi.unstubAllGlobals());
 
+// Search endpoints answer with a page, every other endpoint with a plain list.
+const emptyPage = { items: [], total: 0, skip: 0, limit: 20 };
+const stubFetch = () =>
+  vi.stubGlobal("$fetch", vi.fn((url: string) =>
+    Promise.resolve(String(url).includes("/search") ? emptyPage : []),
+  ));
+
 const forms = [
   { name: "member", component: MemberForm, initial: { _id: "m1", name: "Ada", email: "ada@example.com", status: "pending" } },
   { name: "enterprise", component: EnterpriseForm, initial: { _id: "e1", name: "Acme", status: "active" } },
@@ -15,7 +22,7 @@ const forms = [
 
 describe("entity forms share the same building blocks", () => {
   it.each(forms)("renders the shared fields for a $name and emits cancel", async ({ component, initial, name }) => {
-    vi.stubGlobal("$fetch", vi.fn().mockResolvedValue([]));
+    stubFetch();
     const wrapper = await mountSuspended(component, { props: { initial: initial as never } });
     const text = wrapper.text();
 
@@ -36,7 +43,7 @@ describe("entity forms share the same building blocks", () => {
   });
 
   it("offers a label for every member category option", async () => {
-    vi.stubGlobal("$fetch", vi.fn().mockResolvedValue([]));
+    stubFetch();
     const wrapper = await mountSuspended(MemberForm);
     for (const label of ["Consultor", "Coach", "Capacitador", "Certificaciones especiales"]) {
       expect(wrapper.text()).toContain(label);

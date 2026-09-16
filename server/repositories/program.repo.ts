@@ -3,8 +3,9 @@ import ProgramModel from "../models/Program";
 import EnterpriseModel from "../models/Enterprise";
 import {
   countryCodeFilter,
+  searchPage,
   textSearchConditions,
-  type SearchFilters,
+  type SearchQuery,
 } from "../utils/search";
 import type {
   CreateProgramInput,
@@ -32,12 +33,15 @@ export async function findProgramById(id: string) {
     .lean();
 }
 
+const PROGRAM_SORT = { title: 1, _id: 1 } as const;
+
 export async function searchPrograms({
   query,
   country,
   status,
-  limit = 20,
-}: SearchFilters) {
+  skip,
+  limit,
+}: SearchQuery) {
   await connectDb();
   const filter: Record<string, unknown> = {};
 
@@ -56,10 +60,17 @@ export async function searchPrograms({
     filter.$or = textSearchConditions(query, ["title"]);
   }
 
-  return ProgramModel.find(filter)
-    .populate(ENTERPRISE_POPULATE)
-    .limit(limit)
-    .lean();
+  return searchPage(
+    () =>
+      ProgramModel.find(filter)
+        .populate(ENTERPRISE_POPULATE)
+        .sort(PROGRAM_SORT)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+    () => ProgramModel.countDocuments(filter),
+    { skip, limit },
+  );
 }
 
 export async function createProgram(data: CreateProgramInput) {

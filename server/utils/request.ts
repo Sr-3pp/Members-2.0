@@ -23,8 +23,8 @@ export function optionalQueryString(value: unknown) {
   return normalized || undefined;
 }
 
-export function queryLimit(value: unknown, fallback = 20) {
+/** A whole number read off the query string; anything unusable falls back. */
+export function queryInteger(value: unknown, fallback: number) {
   const parsed = typeof value === "string" ? Number(value) : fallback;
-  if (!Number.isFinite(parsed)) return fallback;
-  return Math.min(Math.max(Math.trunc(parsed), 1), 100);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : fallback;
 }

@@ -4,19 +4,17 @@ interface SelectOption {
 }
 
 export const useFormSearchOptions = <T>(
-  endpoint: "/api/members/search" | "/api/enterprises/search",
+  endpoint: Exclude<EntitySearchEndpoint, "/api/programs/search">,
   toOption: (record: T) => SelectOption,
 ) => {
   const options = ref<SelectOption[]>([]);
   const { loading, run } = useLatestRequest();
 
   const load = async (term = "") => {
-    const results = await run(() =>
-      $fetch<T[]>(endpoint, {
-        params: { q: term, status: "active", limit: 20 },
-      }),
+    const page = await run(() =>
+      fetchEntitySearch<T>(endpoint, { name: term, status: "active", limit: 20 }),
     );
-    if (results) options.value = results.map(toOption);
+    if (page) options.value = page.items.map(toOption);
   };
 
   return { options, loading, load };

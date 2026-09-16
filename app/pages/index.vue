@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import type { MemberCategory } from "~~/shared/utils/categories";
-import type { Member } from "~~/shared/types/entities";
-
-const wizard = ref<HTMLElement | null>(null);
+const wizard = useTemplateRef("wizard");
 
 const scrollToWizard = () => {
-  wizard.value?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
-
-const searchMembers = ref<Member[]>([]);
-const searchCategory = ref<MemberCategory>();
-
-const setMembers = (members: Member[], filters: { category?: MemberCategory }) => {
-  searchMembers.value = members;
-  searchCategory.value = filters.category;
+  wizard.value?.$el.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 </script>
 
@@ -26,15 +15,11 @@ const setMembers = (members: Member[], filters: { category?: MemberCategory }) =
         </h1>
         <MainMap />
 
-        <SearchForm @results="setMembers" />
+        <SearchForm @search="wizard?.search($event)" />
       </UContainer>
     </Parallax>
-    <section ref="wizard" class="bg-inverted">
-      <SearchWizzard
-        :members="searchMembers"
-        :member-category="searchCategory"
-        @scroll-wizzard="scrollToWizard"
-      />
+    <section class="bg-inverted">
+      <SearchWizzard ref="wizard" @scroll-wizzard="scrollToWizard" />
     </section>
   </div>
 </template>

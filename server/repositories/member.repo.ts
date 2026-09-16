@@ -2,8 +2,9 @@ import { connectDb } from "../db/mongoose";
 import MemberModel from "../models/Member";
 import {
   countryCodeFilter,
+  searchPage,
   textSearchConditions,
-  type SearchFilters,
+  type SearchQuery,
 } from "../utils/search";
 import type {
   CreateMemberInput,
@@ -15,13 +16,16 @@ export async function findMember() {
   return MemberModel.find().lean();
 }
 
+const MEMBER_SORT = { name: 1, last_name: 1, _id: 1 } as const;
+
 export async function searchMembers({
   query,
   country,
   category,
   status,
-  limit = 20,
-}: SearchFilters) {
+  skip,
+  limit,
+}: SearchQuery) {
   await connectDb();
   const filter: Record<string, unknown> = {};
 
@@ -33,7 +37,11 @@ export async function searchMembers({
     filter.$or = textSearchConditions(query, ["name", "last_name", "folio"]);
   }
 
-  return MemberModel.find(filter).limit(limit).lean();
+  return searchPage(
+    () => MemberModel.find(filter).sort(MEMBER_SORT).skip(skip).limit(limit).lean(),
+    () => MemberModel.countDocuments(filter),
+    { skip, limit },
+  );
 }
 
 export async function findMemberById(id: string) {

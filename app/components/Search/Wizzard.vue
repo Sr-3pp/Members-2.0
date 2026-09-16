@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { searchCategoryOptions, type MemberCategory, type SearchCategory } from "~~/shared/utils/categories";
-import type { Member, ProgramWithEnterprise } from "~~/shared/types/entities";
+import { searchCategoryOptions, type SearchCategory } from "~~/shared/utils/categories";
+import type { Enterprise, Member, ProgramWithEnterprise } from "~~/shared/types/entities";
 
 const { searchByCategory } = useEntitySearch();
 const { loading, run } = useLatestRequest();
@@ -14,14 +14,6 @@ const countryItems = computed(() => [
   ...countryOptions.value,
 ]);
 
-const props = withDefaults(defineProps<{
-  members?: Member[];
-  memberCategory?: MemberCategory;
-}>(), {
-  members: () => [],
-  memberCategory: undefined,
-});
-
 const emit = defineEmits<{
   "scroll-wizzard": [];
 }>();
@@ -33,49 +25,89 @@ const onResultsEntered = () => {
   categoriesCompact.value = true;
   emit("scroll-wizzard");
 };
+
+// The server pages the results: the list holds every page fetched so far and
+// `total` says how many rows match in all, which is what "Ver más" keys off.
 const searchResults = ref<EntitySearchResult[]>([]);
-const currentCategory = ref<SearchCategory | null>(null);
+const totalResults = ref(0);
+const hasMoreResults = computed(
+  () => searchResults.value.length < totalResults.value,
+);
+
+// The landing form can search members of every category at once; those show
+// under the first member category while the request carries no category filter.
+const searchTarget = ref<EntitySearchTarget | null>(null);
+const currentCategory = computed<SearchCategory | null>(() =>
+  searchTarget.value === "members" ? "consultor" : searchTarget.value,
+);
 const filters = reactive({ name: "", country: ALL_COUNTRIES });
 
-const runSearch = async () => {
-  const category = currentCategory.value;
-  if (!category) return;
+// What was last sent to the server. A category click or a landing-form search
+// resets the filters and runs its own request, so the debounced filter watcher
+// only fires for edits the user typed in.
+let lastSearched = "";
+const searchSignature = () =>
+  JSON.stringify([searchTarget.value, filters.name, filters.country]);
 
-  const results = await run(() =>
-    searchByCategory(category, {
+const runSearch = async ({ append = false } = {}) => {
+  const target = searchTarget.value;
+  if (!target) return;
+  lastSearched = searchSignature();
+
+  const page = await run(() =>
+    searchByCategory(target, {
       name: filters.name,
       country: filters.country === ALL_COUNTRIES ? "" : filters.country,
+      skip: append ? searchResults.value.length : 0,
+      limit: SEARCH_PAGE_SIZE,
     }),
   );
-  if (results) searchResults.value = results;
+  if (!page) return;
+
+  if (!append) {
+    searchResults.value = page.items;
+    totalResults.value = page.total;
+    return;
+  }
+  // A row added or removed between two requests shifts the offset, so drop
+  // anything already on screen, and stop offering more once a page comes back empty.
+  const shown = new Set(searchResults.value.map((item) => item._id));
+  searchResults.value.push(...page.items.filter((item) => !shown.has(item._id)));
+  totalResults.value = page.items.length ? page.total : searchResults.value.length;
 };
 
-const searchFor = async (value: SearchCategory) => {
+const showMore = () => runSearch({ append: true });
+
+/** Starts a fresh search against `target` with the given filters and shows the results. */
+const startSearch = async (
+  target: EntitySearchTarget,
+  { name = "", country = "" }: Pick<EntitySearchRequest, "name" | "country"> = {},
+) => {
   searching.value = true;
-  currentCategory.value = value;
-  filters.name = "";
-  filters.country = ALL_COUNTRIES;
+  searchTarget.value = target;
+  filters.name = name;
+  filters.country = country || ALL_COUNTRIES;
   await runSearch();
 };
 
+const searchFor = (value: SearchCategory) => startSearch(value);
+
+// Lets the page hand over a landing-form submission as a plain method call.
+defineExpose({
+  search: ({ category, ...rest }: EntitySearchRequest) => startSearch(category ?? "members", rest),
+});
+
 watchDebounced(
   [() => filters.name, () => filters.country],
-  runSearch,
+  () => {
+    if (searchSignature() !== lastSearched) runSearch();
+  },
   { debounce: 300 },
 );
 
 const stopSearching = (): void => {
   searching.value = false;
 };
-
-watch(
-  () => [props.members, props.memberCategory] as const,
-  ([newMembers, memberCategory]) => {
-    searchResults.value = newMembers;
-    currentCategory.value = memberCategory ?? "consultor";
-    searching.value = true;
-  },
-);
 </script>
 
 <template>
@@ -94,7 +126,7 @@ watch(
               </h3>
               <form
                 class="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6"
-                @submit.prevent="runSearch"
+                @submit.prevent="runSearch()"
               >
                 <p class="text-inverted my-auto">
                   Busca un miembro ICCN:
@@ -136,6 +168,7 @@ watch(
             <ul
               v-if="searchResults.length"
               class="grid grid-cols-1 sm:grid-cols-2 gap-6"
+              data-testid="search-results"
             >
               <li
                 v-for="instance in searchResults"
@@ -164,6 +197,17 @@ watch(
             <div v-else class="flex flex-col items-center justify-center h-full">
               <UIcon name="tabler-error-404-off" class="size-40" />
               <p class="text-4xl font-bold">No Members found</p>
+            </div>
+            <div v-if="hasMoreResults" class="flex justify-center">
+              <UButton
+                color="secondary"
+                variant="outline"
+                icon="lucide-chevron-down"
+                :loading="loading"
+                @click="showMore"
+              >
+                Ver más
+              </UButton>
             </div>
           </div>
         </div>
