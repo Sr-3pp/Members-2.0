@@ -71,7 +71,7 @@ const modalDescription = computed(() =>
     </UTable>
     <div
       v-if="records.length > pageSize"
-      class="flex flex-wrap items-center justify-between gap-4"
+      class="flex flex-wrap items-center justify-center sm:justify-between gap-4"
     >
       <p class="text-sm text-muted">
         Showing {{ pageRange.start }}-{{ pageRange.end }} of {{ pageRange.total }} {{ kind }}

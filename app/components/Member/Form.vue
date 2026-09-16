@@ -98,7 +98,14 @@ const {
 
     <FormSocialFields v-model="form.social" />
 
-    <UFormField label="Categories" name="categories">
+    <UFormField 
+      label="Categories"
+      name="categories"
+      :ui="{
+        wrapper: 'w-full mb-4 static',
+        label: 'w-full',
+      }"
+    >
       <UCheckboxGroup
         v-model="form.categories"
         :items="categoryOptions"
@@ -106,14 +113,12 @@ const {
         variant="card"
         indicator="hidden"
         :ui="{
-          fieldset: 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4',
-          wrapper: 'w-full',
-          label: 'w-full',
+          fieldset: 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4',
         }"
       >
         <template #label="{ item }">
           <span class="flex flex-col items-center gap-2 text-center">
-            <NuxtImg :src="item.image" alt="" class="mx-auto" />
+            <CategoryIcon :category="item.value" class="mx-auto" />
             <span>{{ item.label }}</span>
           </span>
         </template>
