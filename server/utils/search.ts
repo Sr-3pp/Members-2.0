@@ -44,8 +44,25 @@ export function searchFiltersFromQuery(event: H3Event): SearchFilters {
   };
 }
 
-/** Case-insensitive "contains" conditions across several fields, for a `$or` clause. */
+// Letters that users type with or without accents. Each letter in a group is
+// matched by a character class covering the whole group, in both cases, so the
+// query and the stored value can differ in accents and still match.
+const ACCENT_GROUPS = ["aáàäâã", "eéèëê", "iíìïî", "oóòöôõ", "uúùüû", "nñ", "cç"];
+const ACCENT_CLASS = new Map<string, string>();
+for (const group of ACCENT_GROUPS) {
+  const characterClass = `[${group}${group.toUpperCase()}]`;
+  for (const letter of group) ACCENT_CLASS.set(letter, characterClass);
+}
+
+/** Regex source that matches `value` as a substring regardless of accents on either side. */
+export function accentInsensitivePattern(value: string) {
+  return Array.from(escapeRegex(value))
+    .map((char) => ACCENT_CLASS.get(char.toLowerCase()) ?? char)
+    .join("");
+}
+
+/** Case- and accent-insensitive "contains" conditions across several fields, for a `$or` clause. */
 export function textSearchConditions(query: string, fields: string[]) {
-  const escaped = escapeRegex(query);
-  return fields.map((field) => ({ [field]: { $regex: escaped, $options: "i" } }));
+  const pattern = accentInsensitivePattern(query);
+  return fields.map((field) => ({ [field]: { $regex: pattern, $options: "i" } }));
 }
