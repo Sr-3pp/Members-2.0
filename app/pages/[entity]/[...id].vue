@@ -111,7 +111,7 @@ const displayRingColor = computed(() => {
             class="size-10 rounded-full border border-red-300 object-cover p-1"
             :country="(entity as Member | Enterprise).country"
           />
-          <h3 class="flex justify-between sm:justify-start items-center sm:flex-col gap-2 w-full">
+          <h3 class="flex justify-between sm:justify-start items-center sm:flex-col gap-2 w-full sm:w-auto">
             <span>
               {{ (entity as any).country?.name }} <br />
               <small>{{ (entity as any).city }}</small>
