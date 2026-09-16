@@ -13,7 +13,14 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    betterAuthSecret: "",
+    betterAuthUrl: "",
     mongodbUri: process.env.MONGODB_URI || "",
+    public: {
+      // Base URL of the main ICCN site the navbar marketing links point to.
+      // Override with NUXT_PUBLIC_MAIN_SITE_URL.
+      mainSiteUrl: "https://www.internationalccn.org",
+    },
   },
 
   colorMode: {

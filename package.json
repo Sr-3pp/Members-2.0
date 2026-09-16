@@ -14,10 +14,12 @@
     "test:unit": "vitest --project unit",
     "test:nuxt": "vitest --project nuxt",
     "test:e2e": "vitest --project e2e",
+    "admin:create": "jiti scripts/create-admin.ts",
     "db:seed": "jiti scripts/seed.ts",
     "countries:generate": "jiti scripts/generate-countries.ts"
   },
   "dependencies": {
+    "@better-auth/mongo-adapter": "^1.7.5",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/eslint": "1.12.1",
     "@nuxt/hints": "1.0.0-alpha.5",
@@ -27,8 +29,11 @@
     "@nuxt/ui": "4.4.0",
     "@unhead/vue": "^2.1.2",
     "@vueuse/nuxt": "14.4.0",
+    "better-auth": "^1.7.5",
     "better-sqlite3": "^12.6.2",
     "eslint": "^9.39.2",
+    "h3": "1.15.5",
+    "mongodb": "7.0.0",
     "mongoose": "^9.1.5",
     "mongoose-bcrypt": "^1.11.0",
     "nuxt": "^4.2.2",
@@ -40,6 +45,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.132",
+    "@iconify-json/tabler": "^1.2.38",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",

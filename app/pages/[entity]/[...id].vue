@@ -94,10 +94,10 @@ const displayRingColor = computed(() => {
   <UContainer v-if="entity" class="flex flex-col gap-6 py-6">
     <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
       <div
-        class="col-span-1 sm:col-span-6 md:col-span-3 flex flex-col items-center gap-6"
+        class="col-span-1 sm:col-span-6 md:col-span-3 flex flex-wrap sm:flex-col items-center gap-6"
       >
         <figure
-          class="rounded-full overflow-hidden aspect-square border-8 border-white ring-4 w-full md:w-4/5 mx-auto"
+          class="rounded-full overflow-hidden aspect-square border-8 border-white ring-4 w-4/5 mx-auto"
           :class="displayRingColor"
         >
           <NuxtImg
@@ -111,15 +111,13 @@ const displayRingColor = computed(() => {
             class="size-10 rounded-full border border-red-300 object-cover p-1"
             :country="(entity as Member | Enterprise).country"
           />
-          <div class="flex flex-col gap-4">
-            <h3 class="flex flex-col gap-2 w-full">
-              <span>
-                {{ (entity as any).country?.name }} <br />
-                <small>{{ (entity as any).city }}</small>
-              </span>
-              <small>({{ (entity as any).country?.zone }})</small>
-            </h3>
-          </div>
+          <h3 class="flex justify-between sm:justify-start items-center sm:flex-col gap-2 w-full">
+            <span>
+              {{ (entity as any).country?.name }} <br />
+              <small>{{ (entity as any).city }}</small>
+            </span>
+            <small>({{ (entity as any).country?.zone }})</small>
+          </h3>
         </div>
         <div v-else-if="isProgram && programEnterprise" class="flex w-full gap-3">
           <CountryFlag
@@ -136,7 +134,7 @@ const displayRingColor = computed(() => {
             </h3>
           </div>
         </div>
-        <div v-if="isMember" class="flex items-center w-full gap-4">
+        <div v-if="isMember" class="flex items-center mx-auto sm:w-full gap-4">
           <NuxtImg
             class="size-10"
             :src="`/img/medals/${(entity as Member).range}.png`"
@@ -148,10 +146,10 @@ const displayRingColor = computed(() => {
         </div>
       </div>
       <div class="col-span-1 sm:col-span-6 md:col-span-9 flex flex-col gap-6">
-        <h1 class="text-4xl font-bold">
+        <h1 class="text-4xl text-center text-balance sm:text-left font-bold">
           {{ displayName }}
         </h1>
-        <ul class="flex gap-6" v-if="isMember">
+        <ul class="flex justify-center sm:justify-start gap-6" v-if="isMember">
           <li
             class="flex items-center gap-2"
             v-for="category in (entity as Member).categories"
@@ -170,16 +168,16 @@ const displayRingColor = computed(() => {
           <span class="capitalize">programa</span>
           <span class="text-sm text-gray-500">{{ (entity as Program).length }} días</span>
         </p>
-        <hr />
+        <hr class="mb-8 sm:mb-0" />
         <Map :with-pins="true" :continent="displayContinent" />
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-6 md:grid-cols-12">
+    <div class="grid grid-cols-1 sm:grid-cols-6 md:grid-cols-12 mt-8 sm:mt-0">
       <div class="col-span-1 sm:col-span-6 md:col-span-8 flex flex-col gap-8">
         <article class="flex flex-col gap-4">
           <h3 class="text-xl font-bold">
-            {{ isProgram ? "Description" : "Education" }}
+            {{ isProgram ? "Descripción" : "Educación" }}
           </h3>
           <p>
             {{
@@ -192,7 +190,7 @@ const displayRingColor = computed(() => {
           </p>
         </article>
         <article class="flex flex-col gap-4">
-          <h3 class="text-xl font-bold">Resume</h3>
+          <h3 class="text-xl font-bold">Resumen</h3>
           <p>
             {{ isProgram ? (entity as Program).description : (entity as any).resume }}
           </p>
@@ -200,7 +198,7 @@ const displayRingColor = computed(() => {
       </div>
       <div class="col-span-1 sm:col-span-6 md:col-span-4 flex flex-col gap-8">
         <article class="flex flex-col gap-2">
-          <p class="text-xl font-bold">Contact</p>
+          <p class="text-xl font-bold">Contacto</p>
           <ul class="flex flex-col gap-2">
             <li v-if="contactSource?.folio" class="flex items-center gap-2">
               <NuxtImg
@@ -220,7 +218,7 @@ const displayRingColor = computed(() => {
                 <NuxtImg
                   class="size-10"
                   src="/img/resources/phone-icon.png"
-                  alt="icono phone"
+                  alt="icono teléfono"
                 />
                 <p>
                   {{ contactSource?.phone }}
@@ -238,7 +236,7 @@ const displayRingColor = computed(() => {
                 <NuxtImg
                   class="size-10"
                   src="/img/resources/mobile-icon.png"
-                  alt="icono mobile"
+                  alt="icono móvil"
                 />
                 <p>
                   {{ (entity as Member).mobile }}
@@ -249,7 +247,7 @@ const displayRingColor = computed(() => {
               <NuxtImg
                 class="size-10"
                 src="/img/resources/country-icon.png"
-                alt="icon country"
+                alt="icono país"
               />
               <p>
                 {{ contactSource?.country.name }}
@@ -266,7 +264,7 @@ const displayRingColor = computed(() => {
                 <NuxtImg
                   class="size-10"
                   src="/img/resources/email-icon.png"
-                  alt="icono email"
+                  alt="icono correo electrónico"
                 />
                 <p>
                   {{ (entity as Member).email }}
@@ -293,8 +291,8 @@ const displayRingColor = computed(() => {
           </ul>
         </article>
         <article class="flex flex-col gap-2">
-          <p class="text-xl font-bold">Social</p>
-          <ul class="flex gap-4">
+          <p class="text-xl font-bold text-center sm:text-left">Social</p>
+          <ul class="flex gap-4 mx-auto sm:mx-0">
             <li v-if="contactSource?.social?.fb" class="flex items-center gap-2">
               <NuxtImg
                 class="size-10"
@@ -348,7 +346,7 @@ const displayRingColor = computed(() => {
     <UContainer
       class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-6 gap-4 py-6"
     >
-      <div class="col-span-1 sm:col-span-6 md:col-span-2 flex items-center">
+      <div class="col-span-1 sm:col-span-6 md:col-span-2 flex items-center justify-center sm:justify-start">
         <h5 class="text-xl font-bold">Skills</h5>
       </div>
       <div class="col-span-1 sm:col-span-6 md:col-span-4">
@@ -358,8 +356,8 @@ const displayRingColor = computed(() => {
             :key="`member_skill-${skill.name}-${skill.level}`"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-8 gap-4"
           >
-            <span class="col-span-1 md:col-span-3">{{ skill.name }}</span>
-            <span class="col-span-1 md:col-span-5 flex gap-2">
+            <span class="col-span-1 md:col-span-3 text-center sm:text-left">{{ skill.name }}</span>
+            <span class="col-span-1 md:col-span-5 flex gap-2 justify-center sm:justify-start">
               <UIcon
                 v-for="_ in skill.level"
                 name="mingcute-star-fill"

@@ -44,12 +44,12 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
 
 <template>
   <UForm
-    class="flex-row gap-4 items-center"
+    class="flex-row flex-wrap sm:flex-nowrap gap-4 items-center"
     :schema="schema"
     :state="state"
     @submit="handleSubmit"
   >
-    <UFormField label="Name / Last Name / Folio" name="name" class="sm:basis-1/3">
+    <UFormField label="Name / Last Name / Folio" name="name" class="basis-full sm:basis-1/3">
       <UInput
         v-model="state.name"
         class="w-full"
@@ -57,7 +57,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         aria-label="Name, last name, or folio"
       />
     </UFormField>
-    <UFormField label="Select Country" name="country" class="sm:basis-1/3">
+    <UFormField label="Select Country" name="country" class="basis-full sm:basis-1/3">
       <USelectMenu
         v-model="state.country"
         name="country"
@@ -69,7 +69,7 @@ const handleSubmit = async (event: FormSubmitEvent<SearchFormData>) => {
         :ui="{ placeholder: 'text-gray-200' }"
       />
     </UFormField>
-    <UFormField label="Select Category" name="category" class="sm:basis-1/3">
+    <UFormField label="Select Category" name="category" class="basis-full sm:basis-1/3">
       <USelect
         v-model="state.category"
         class="w-full"

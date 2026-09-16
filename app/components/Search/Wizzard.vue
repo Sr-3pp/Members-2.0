@@ -93,7 +93,7 @@ watch(
                 Conoce a nuestros miembros ICCN
               </h3>
               <form
-                class="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6"
+                class="grid grid-cols-1 sm:grid-cols-3 gap-6 py-6"
                 @submit.prevent="runSearch"
               >
                 <p class="text-inverted my-auto">
@@ -124,7 +124,7 @@ watch(
                 color="secondary"
                 variant="ghost"
                 icon="lucide-chevron-left"
-                class="absolute top-0 right-0"
+                class="sm:absolute top-0 right-0"
                 @click="stopSearching"
               >
                 Regresar
